@@ -1,4 +1,4 @@
-package codegen
+package backend
 
 import "loxcc/internal/ast"
 
@@ -7,5 +7,5 @@ type CodeGenerator interface {
 	ast.StatementVisitor
 	ast.DeclarationVisitor
 
-	Generate() string
+	Generate(ast.Program) string
 }

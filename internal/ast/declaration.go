@@ -35,7 +35,6 @@ type StatementDeclaration struct {
 }
 
 // Visitor pattern implementations.
-
 func (d ClassDeclaration) Accept(visitor DeclarationVisitor)    { visitor.VisitClassDeclaration(d) }
 func (d FunctionDeclaration) Accept(visitor DeclarationVisitor) { visitor.VisitFunctionDeclaration(d) }
 func (d VarDeclaration) Accept(visitor DeclarationVisitor)      { visitor.VisitVarDeclaration(d) }

@@ -10,7 +10,7 @@ var (
 	//
 	// This is used to reduce switch-case boilerplate, although it may get slower than the
 	// original version. Trade speed for maintainability is worthwhile.
-	sTokensMapping = map[rune]TokenType{
+	sTokenMap = map[rune]TokenType{
 		'(': TokLeftParenthesis,
 		')': TokRightParenthesis,
 		'{': TokLeftBrace,
@@ -30,7 +30,7 @@ var (
 
 	// Mapping for processing one or two character tokens.
 	// See [dtype] for details.
-	dTokensMapping = map[rune]dtype{
+	dTokenMap = map[rune]dtype{
 		'!': {'=', TokBangEqual},
 		'=': {'=', TokEqualEqual},
 		'>': {'=', TokGreaterEqual},
@@ -41,7 +41,7 @@ var (
 	//
 	// Keywords are special identifiers, whose [TokenType] is determined after making the
 	// token itself. We can just lookup the map for a specific [TokenType].
-	keywordsMapping = map[string]TokenType{
+	keywordMap = map[string]TokenType{
 		"and":    TokAnd,
 		"class":  TokClass,
 		"else":   TokElse,
@@ -114,14 +114,14 @@ func (s *Scanner) Scan() (*Token, error) {
 
 	// check whether it's a double character token
 	// more specifically, an operator (e.g. [TokGreaterEqual] >=)
-	if d, exists := dTokensMapping[c]; exists {
+	if d, exists := dTokenMap[c]; exists {
 		if s.match(d.Expect) {
 			return s.makeToken(d.Then)
 		}
 	}
 
 	// check whether it's a single character token
-	if t, exists := sTokensMapping[c]; exists {
+	if t, exists := sTokenMap[c]; exists {
 		return s.makeToken(t)
 	}
 
@@ -206,7 +206,7 @@ func (s *Scanner) scanIdentifier() (*Token, error) {
 	}
 
 	token, _ := s.makeToken(TokIdentifier)
-	if t, exists := keywordsMapping[token.Lexeme]; exists {
+	if t, exists := keywordMap[token.Lexeme]; exists {
 		token.Type = t
 	}
 	return token, nil

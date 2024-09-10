@@ -1,0 +1,5 @@
+fun hello(world) { // line comment
+    print "hello" + world;
+}
+
+hello("lox");

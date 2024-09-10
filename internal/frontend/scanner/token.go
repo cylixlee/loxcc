@@ -2,6 +2,7 @@ package scanner
 
 const (
 	// Single character tokens
+
 	TokLeftParenthesis TokenType = iota
 	TokRightParenthesis
 	TokLeftBrace
@@ -13,7 +14,9 @@ const (
 	TokSemicolon
 	TokSlash
 	TokStar
+
 	// One or two character tokens
+
 	TokBang
 	TokEqual
 	TokGreater
@@ -22,11 +25,15 @@ const (
 	TokEqualEqual
 	TokGreaterEqual
 	TokLessEqual
+
 	// Literals
+
 	TokIdentifier
 	TokString
 	TokNumber
+
 	// Keywords
+
 	TokAnd
 	TokClass
 	TokElse

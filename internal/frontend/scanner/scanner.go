@@ -1,7 +1,12 @@
 package scanner
 
+import (
+	"errors"
+	"fmt"
+)
+
 var (
-	// Mapping from single character to a concrete TokenType.
+	// Mapping from single character to a concrete [TokenType].
 	//
 	// This is used to reduce switch-case boilerplate, although it may get slower than the
 	// original version. Trade speed for maintainability is worthwhile.
@@ -31,9 +36,35 @@ var (
 		'>': {'=', TokGreaterEqual},
 		'<': {'=', TokLessEqual},
 	}
+
+	// Mapping from keywords to a concrete [TokenType].
+	//
+	// Keywords are special identifiers, whose [TokenType] is determined after making the
+	// token itself. We can just lookup the map for a specific [TokenType].
+	keywordsMapping = map[string]TokenType{
+		"and":    TokAnd,
+		"class":  TokClass,
+		"else":   TokElse,
+		"false":  TokFalse,
+		"for":    TokFor,
+		"fun":    TokFun,
+		"if":     TokIf,
+		"nil":    TokNil,
+		"or":     TokOr,
+		"print":  TokPrint,
+		"return": TokReturn,
+		"super":  TokSuper,
+		"this":   TokThis,
+		"true":   TokTrue,
+		"var":    TokVar,
+		"while":  TokWhile,
+	}
+
+	ErrUnterminatedString = errors.New("unterminated string")
 )
 
-// Type for process some token with higher priority.
+// Type for process some token with higher priority. [dtype] is the abbreviation of
+// double-character token helper type.
 //
 // For example, the greater sign [>] and a following equal sign [=] can form a
 // [TokGreaterEqual], instead of two tokens [TokGreater] and [TokEqual].
@@ -58,68 +89,170 @@ func NewScanner(source string) *Scanner {
 	}
 }
 
+// Scans one single [Token] and returns.
+//
+// There's three patterns of return values:
+//  1. *Token and nil: Successfully scanned a token without any errors.
+//  2. nil and nil: Scanner has reached EOF, there's no more [Token].
+//  3. nil and error: Error occurred while scanning.
+//
+// If there's an error, it'll be of those kinds:
+//  1. Unexpected character. When encountered with an unexpected character, returns a
+//     distinct error value, even if the character is identical.
+//  2. [ErrUnterminatedString]. When a string isn't terminated with the double quotation
+//     mark '"'.
 func (s *Scanner) Scan() (*Token, error) {
-	if err := s.skipWhitespace(); err != nil {
-		return nil, err
-	}
+	// skips whitespace
+	s.skipWhitespace()
 	s.start = s.current
 
-	c, err := s.advance()
-	if err != nil {
-		return nil, err
+	// advances (consumes) a character
+	c, ok := s.advance()
+	if !ok {
+		return nil, nil
 	}
 
+	// check whether it's a double character token
+	// more specifically, an operator (e.g. [TokGreaterEqual] >=)
 	if d, exists := dTokensMapping[c]; exists {
 		if s.match(d.Expect) {
 			return s.makeToken(d.Then)
 		}
 	}
 
+	// check whether it's a single character token
 	if t, exists := sTokensMapping[c]; exists {
 		return s.makeToken(t)
 	}
-	return nil, UnexpectedCharacterError(s.source[s.current])
+
+	// try scanning the token as literals
+	switch {
+	case c == '"':
+		return s.scanString()
+	case isDigit(c):
+		return s.scanNumber()
+	case isAlpha(c):
+		return s.scanIdentifier()
+	}
+
+	// finally we can say the character is not recognizable
+	return nil, fmt.Errorf("unexpected character %c", c)
+}
+
+// Scans a double-quoted string literal.
+//
+// This function is called when the leading double quotation mark is consumed, and it
+// consumes the tailing one. If the string is not terminated with '"',
+// [ErrUnterminatedString] is returned.
+func (s *Scanner) scanString() (*Token, error) {
+	for {
+		peek, ok := s.peek()
+		if !ok || peek == '"' {
+			break
+		}
+
+		if peek == '\n' {
+			s.lineno++
+		}
+		s.advance()
+	}
+
+	terminator, ok := s.peek()
+	if !ok || terminator != '"' {
+		return nil, ErrUnterminatedString
+	}
+	s.advance()
+	return s.makeToken(TokString)
+}
+
+// Scans the current token as a number.
+//
+// Numbers consist of an integer part and an optional decimal part.
+func (s *Scanner) scanNumber() (*Token, error) {
+	for {
+		peek, ok := s.peek()
+		if !ok || !isDigit(peek) {
+			break
+		}
+		s.advance()
+	}
+
+	peek, ok1 := s.peek()
+	next, ok2 := s.peekNext()
+	if ok1 && ok2 && peek == '.' && isDigit(next) {
+		s.advance()
+		for {
+			peek, ok1 = s.peek()
+			if !ok1 || !isDigit(peek) {
+				break
+			}
+			s.advance()
+		}
+	}
+	return s.makeToken(TokNumber)
+}
+
+// Scans the current token as an identifier.
+//
+// Note that a keyword is a valid identifier, so we need to re-determine its [TokenType]
+// after the token is made.
+func (s *Scanner) scanIdentifier() (*Token, error) {
+	for {
+		peek, ok := s.peek()
+		if !ok || !isAlplanumeric(peek) {
+			break
+		}
+		s.advance()
+	}
+
+	token, _ := s.makeToken(TokIdentifier)
+	if t, exists := keywordsMapping[token.Lexeme]; exists {
+		token.Type = t
+	}
+	return token, nil
 }
 
 // Peeks the current character (rune), without moving s.current forward.
 //
-// This function may return [ErrEndOfSource] as error when there's no more character. No
-// other errors will be returned.
-func (s Scanner) peek() (rune, error) {
+// If there's no more character available, this function returns 0 as rune and a false
+// value indicating the operation is not successful.
+func (s Scanner) peek() (rune, bool) {
 	if s.current >= len(s.source) {
-		return 0, ErrEndOfSource
+		return 0, false
 	}
-	return s.source[s.current], nil
+	return s.source[s.current], true
 }
 
 // Peeks the next character without moving s.current forward.
-func (s Scanner) peekNext() (rune, error) {
+//
+// If there's no more character at next position, this function returns 0 as rune and a
+// false value indicating the operation is not successful.
+func (s Scanner) peekNext() (rune, bool) {
 	if s.current+1 >= len(s.source) {
-		return 0, ErrEndOfSource
+		return 0, false
 	}
-	return s.source[s.current+1], nil
+	return s.source[s.current+1], true
 }
 
-// Advances the s.current pointer, returns the consumed character, or an error if any.
-//
-// This function can and can only return [ErrEndOfSource] as error.
-func (s Scanner) advance() (rune, error) {
-	peek, err := s.peek()
-	if err != nil {
-		return 0, err
+// Advances the s.current pointer, returns the consumed character, or false if there's no
+// character ahead.
+func (s *Scanner) advance() (rune, bool) {
+	peek, ok := s.peek()
+	if !ok {
+		return 0, false
 	}
 	s.current++
-	return peek, nil
+	return peek, true
 }
 
 // Returns true when the next character is as expected.
 //
-// This function will never fail. It only depends on peekNext, which can and can only
-// return [ErrEndOfSource] when there's no more character. In that case, this function
-// returns false, because the "next character" is not as expected.
+// This function never fails. It only depends on peekNext, which may return a false value
+// indicating there's no character at next position. In that case, this function returns
+// false, because the "next character" is, indeed, not as expected.
 func (s *Scanner) match(expect rune) bool {
-	peek, err := s.peekNext()
-	if err != nil {
+	peek, ok := s.peekNext()
+	if !ok {
 		return false
 	}
 
@@ -130,40 +263,40 @@ func (s *Scanner) match(expect rune) bool {
 	return true
 }
 
-func (s *Scanner) skipWhitespace() error {
+// Skips all whitespaces (including comments) before Lox source.
+//
+// This function never fails. It depends on peek, peekNext and advance, which can and can
+// only return [ErrEndOfSource]. It is legal to skip all whitespaces until EOF.
+func (s *Scanner) skipWhitespace() {
 	for {
-		c, err := s.peek()
-		if err != nil {
-			if err == ErrEndOfSource {
-				return nil
-			}
-			return err
+		c, ok := s.peek()
+		if !ok {
+			return
 		}
 
 		switch c {
+		// newline
 		case '\n':
 			s.lineno++
 			fallthrough
+
+		// regular whitespaces
 		case ' ', '\t', '\r':
 			s.advance()
+
+		// comment (only line comment is supported)
 		case '/':
 			if s.current+1 < len(s.source) {
-				next, err := s.peekNext()
-				if err != nil {
-					if err == ErrEndOfSource {
-						return nil
-					}
-					return err
+				next, ok := s.peekNext()
+				if !ok {
+					return
 				}
 
 				if next == '/' {
 					for {
-						peek, err := s.peek()
-						if err != nil {
-							if err == ErrEndOfSource {
-								break
-							}
-							return err
+						peek, ok := s.peek()
+						if !ok {
+							return
 						}
 
 						if peek == '\n' {
@@ -172,17 +305,18 @@ func (s *Scanner) skipWhitespace() error {
 						s.advance()
 					}
 				} else {
-					return nil
+					return
 				}
 			}
 		default:
-			return nil
+			return
 		}
 	}
 }
 
-// Returns a token with given type and source[start:current] as lexeme. An extra nil value
-// (as [error] type) is returned in order to reduce boilerplate.
+// Returns a token with given type and source[start:current] as lexeme.
+//
+// An extra nil value (as [error] type) is returned in order to reduce boilerplate.
 func (s Scanner) makeToken(t TokenType) (*Token, error) {
 	return &Token{
 		Type:   t,

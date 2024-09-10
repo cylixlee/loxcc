@@ -7,14 +7,11 @@ import (
 	stl "github.com/chen3feng/stl4go"
 )
 
-func (p *Parser) parseArguments(terminator scanner.TokenType) (stl.Vector[ast.Expression], error) {
+func (p *Parser) ParseDeclaration() (ast.Declaration, error) { panic("unimplemented") }
+
+func (p *Parser) parseArguments() (stl.Vector[ast.Expression], error) {
 	// create vector (slice)
 	var arguments stl.Vector[ast.Expression]
-
-	// handle the situation of 0 argument(s)
-	if p.tryConsume(terminator) {
-		return arguments, nil
-	}
 
 	// parse the first argument
 	expr, err := p.ParseExpression()

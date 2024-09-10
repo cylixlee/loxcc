@@ -6,17 +6,23 @@ import (
 )
 
 func Inspect(expr ast.Expression) {
-	var inspector astInspector
-	expr.Accept(&inspector)
+	expr.Accept(new(astInspector))
 }
 
 type astInspector struct {
 	indent int
 }
 
+func (a *astInspector) indented(title string, f func()) {
+	a.printfln("<%s>", title)
+	a.indent++
+	f()
+	a.indent--
+}
+
 func (a *astInspector) printfln(format string, v ...any) {
 	for range a.indent {
-		fmt.Print("  ")
+		fmt.Print("\t")
 	}
 	fmt.Printf(format, v...)
 	fmt.Println()
@@ -30,35 +36,31 @@ func (a *astInspector) VisitIdentifierLiteral(i ast.IdentifierLiteral) { a.print
 func (a *astInspector) VisitThisLiteral(t ast.ThisLiteral)             { a.printfln("this") }
 func (a *astInspector) VisitSuperLiteral(s ast.SuperLiteral)           { a.printfln("super") }
 
-func (a *astInspector) VisitAssignmentExpression(e ast.AssignmentExpression) {
-	a.printfln("<assignment>")
-	a.indent++
-	e.Left.Accept(a)
-	e.Right.Accept(a)
-	a.indent--
+func (a *astInspector) VisitAssignmentExpression(as ast.AssignmentExpression) {
+	a.indented("assign", func() {
+		as.Left.Accept(a)
+		as.Right.Accept(a)
+	})
 }
 
-func (a *astInspector) VisitBinaryExpression(e ast.BinaryExpression) {
-	a.printfln("<binop %s>", e.Operator.Lexeme)
-	a.indent++
-	e.Left.Accept(a)
-	e.Right.Accept(a)
-	a.indent--
+func (a *astInspector) VisitBinaryExpression(b ast.BinaryExpression) {
+	a.indented(fmt.Sprintf("binary \"%s\"", b.Operator.Lexeme), func() {
+		b.Left.Accept(a)
+		b.Right.Accept(a)
+	})
 }
 
-func (a *astInspector) VisitUnaryExpression(e ast.UnaryExpression) {
-	a.printfln("<uop %s>", e.Operator.Lexeme)
-	a.indent++
-	e.Operand.Accept(a)
-	a.indent--
+func (a *astInspector) VisitUnaryExpression(u ast.UnaryExpression) {
+	a.indented(fmt.Sprintf("unary \"%s\"", u.Operator.Lexeme), func() {
+		u.Operand.Accept(a)
+	})
 }
 
-func (a *astInspector) VisitInvocationExpression(e ast.InvocationExpression) {
-	a.printfln("<invoke>")
-	e.Callee.Accept(a)
-	a.indent++
-	for _, v := range e.Arguments {
-		v.Accept(a)
-	}
-	a.indent--
+func (a *astInspector) VisitInvocationExpression(i ast.InvocationExpression) {
+	a.indented("invoke", func() {
+		i.Callee.Accept(a)
+		for _, v := range i.Arguments {
+			v.Accept(a)
+		}
+	})
 }

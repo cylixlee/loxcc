@@ -4,6 +4,13 @@ import (
 	stl "github.com/chen3feng/stl4go"
 )
 
+const (
+	VarDecl ForInitializerKind = iota
+	InitExpr
+)
+
+type ForInitializerKind byte
+
 type Statement interface {
 	Accept(StatementVisitor)
 }
@@ -23,12 +30,13 @@ type ExpressionStatement struct {
 }
 
 type ForLoopInitializer struct {
+	Kind            ForInitializerKind
 	VarInitializer  VarDeclaration
 	ExprInitializer Expression
 }
 
 type ForStatement struct {
-	Initializer ForLoopInitializer
+	Initializer *ForLoopInitializer
 	Condition   Expression
 	Incrementer Expression
 	Body        Statement

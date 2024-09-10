@@ -116,13 +116,13 @@ func (s *Scanner) Scan() (*Token, error) {
 	// more specifically, an operator (e.g. [TokGreaterEqual] >=)
 	if d, exists := dTokenMap[c]; exists {
 		if s.match(d.Expect) {
-			return s.makeToken(d.Then)
+			return s.makeToken(d.Then), nil
 		}
 	}
 
 	// check whether it's a single character token
 	if t, exists := sTokenMap[c]; exists {
-		return s.makeToken(t)
+		return s.makeToken(t), nil
 	}
 
 	// try scanning the token as literals
@@ -162,7 +162,7 @@ func (s *Scanner) scanString() (*Token, error) {
 		return nil, ErrUnterminatedString
 	}
 	s.advance()
-	return s.makeToken(TokString)
+	return s.makeToken(TokString), nil
 }
 
 // Scans the current token as a number.
@@ -189,7 +189,7 @@ func (s *Scanner) scanNumber() (*Token, error) {
 			s.advance()
 		}
 	}
-	return s.makeToken(TokNumber)
+	return s.makeToken(TokNumber), nil
 }
 
 // Scans the current token as an identifier.
@@ -205,7 +205,7 @@ func (s *Scanner) scanIdentifier() (*Token, error) {
 		s.advance()
 	}
 
-	token, _ := s.makeToken(TokIdentifier)
+	token := s.makeToken(TokIdentifier)
 	if t, exists := keywordMap[token.Lexeme]; exists {
 		token.Type = t
 	}
@@ -315,12 +315,10 @@ func (s *Scanner) skipWhitespace() {
 }
 
 // Returns a token with given type and source[start:current] as lexeme.
-//
-// An extra nil value (as [error] type) is returned in order to reduce boilerplate.
-func (s Scanner) makeToken(t TokenType) (*Token, error) {
+func (s Scanner) makeToken(t TokenType) *Token {
 	return &Token{
 		Type:   t,
 		Lexeme: string(s.source[s.start:s.current]),
 		Lineno: s.lineno,
-	}, nil
+	}
 }

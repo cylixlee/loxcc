@@ -65,7 +65,7 @@ func (p *Parser) ParseExpression() (ast.Expression, error) {
 
 func (p *Parser) parsePrecedence(precedence Precedence) (ast.Expression, error) {
 	// consume prefix token
-	prefix, err := p.mustAdvance()
+	prefix, err := p.mustPeek()
 	if err != nil {
 		return nil, err
 	}
@@ -76,24 +76,32 @@ func (p *Parser) parsePrecedence(precedence Precedence) (ast.Expression, error) 
 	switch prefix.Type {
 	case scanner.TokNil:
 		expr = ast.NilLiteral{}
+		p.mustAdvance()
 	case scanner.TokTrue:
 		expr = ast.BooleanLiteral(true)
+		p.mustAdvance()
 	case scanner.TokFalse:
 		expr = ast.BooleanLiteral(false)
+		p.mustAdvance()
 	case scanner.TokNumber:
 		number, err := strconv.ParseFloat(prefix.Lexeme, 64)
 		if err != nil {
 			return nil, err
 		}
 		expr = ast.NumberLiteral(number)
+		p.mustAdvance()
 	case scanner.TokString:
 		expr = ast.StringLiteral(prefix.Lexeme)
+		p.mustAdvance()
 	case scanner.TokIdentifier:
 		expr = ast.IdentifierLiteral(prefix.Lexeme)
+		p.mustAdvance()
 	case scanner.TokThis:
 		expr = ast.ThisLiteral{}
+		p.mustAdvance()
 	case scanner.TokSuper:
 		expr = ast.SuperLiteral{}
+		p.mustAdvance()
 	case scanner.TokLeftParenthesis:
 		expr, err = p.parseParenthesized()
 		if err != nil {
@@ -136,10 +144,10 @@ func (p *Parser) parsePrecedence(precedence Precedence) (ast.Expression, error) 
 }
 
 func (p *Parser) parseParenthesized() (ast.Expression, error) {
-	// // consume left parenthesis
-	// if _, err := p.mustConsume(scanner.TokLeftParenthesis); err != nil {
-	// 	return nil, err
-	// }
+	// consume left parenthesis
+	if _, err := p.mustConsume(scanner.TokLeftParenthesis); err != nil {
+		return nil, err
+	}
 
 	// parse expression
 	expr, err := p.ParseExpression()
@@ -161,7 +169,7 @@ func (p *Parser) parseInvocation(callee ast.Expression) (ast.Expression, error) 
 	}
 
 	// parse arguments
-	arguments, err := p.parseArguments(scanner.TokRightParenthesis)
+	arguments, err := p.parseArguments()
 	if err != nil {
 		return nil, err
 	}

@@ -181,7 +181,7 @@ func (p *parser) parseUnary() (ast.Expression, error) {
 		return nil, err
 	}
 
-	operand, err := p.ParseExpression()
+	operand, err := p.parsePrecedence(Impossible)
 	if err != nil {
 		return nil, err
 	}

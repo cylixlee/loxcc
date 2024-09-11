@@ -1,34 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"log"
-	"loxcc/internal"
+	"loxcc/internal/backend"
 	"loxcc/internal/frontend/parser"
 	"loxcc/internal/frontend/scanner"
-	"os"
 )
 
 func main() {
-	// // check command-line arguments
-	// if len(os.Args) != 2 {
-	// 	fmt.Fprintln(os.Stderr, "Usage: loxcc [path]")
-	// 	return
-	// }
-	// log.SetFlags(0)
-
-	// // read file
-	// b, err := os.ReadFile(os.Args[1])
-	// if err != nil {
-	// 	log.Fatalln(err.Error())
-	// }
-	// source := string(b)
-
-	// read file
-	b, err := os.ReadFile("example/benchmark.lox")
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
-	source := string(b)
+	source := "(-1 + 2) * 3 - -4;"
 
 	tokens, err := scanner.Scan(source)
 	if err != nil {
@@ -40,7 +21,6 @@ func main() {
 		log.Fatalln(err.Error())
 	}
 
-	for _, decl := range program {
-		internal.Inspect(decl)
-	}
+	code := backend.Generate(program)
+	fmt.Println(code)
 }

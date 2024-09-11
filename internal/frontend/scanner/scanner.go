@@ -3,6 +3,8 @@ package scanner
 import (
 	"errors"
 	"fmt"
+
+	stl "github.com/chen3feng/stl4go"
 )
 
 var (
@@ -63,6 +65,29 @@ var (
 	ErrUnterminatedString = errors.New("unterminated string")
 )
 
+func Scan[S ~string](source S) (stl.Vector[*Token], error) {
+	s := scanner{
+		source:  []rune(source),
+		start:   0,
+		current: 0,
+		lineno:  1,
+	}
+	var tokens stl.Vector[*Token]
+
+	for {
+		token, err := s.scan()
+		if err != nil {
+			return nil, err
+		}
+
+		if token == nil {
+			break
+		}
+		tokens.PushBack(token)
+	}
+	return tokens, nil
+}
+
 // Type for process some token with higher priority. [dtype] is the abbreviation of
 // double-character token helper type.
 //
@@ -73,20 +98,11 @@ type dtype struct {
 	Then   TokenType
 }
 
-type Scanner struct {
+type scanner struct {
 	source  []rune
 	start   int
 	current int
 	lineno  int
-}
-
-func NewScanner(source string) *Scanner {
-	return &Scanner{
-		source:  []rune(source),
-		start:   0,
-		current: 0,
-		lineno:  1,
-	}
 }
 
 // Scans one single [Token] and returns.
@@ -101,7 +117,7 @@ func NewScanner(source string) *Scanner {
 //     distinct error value, even if the character is identical.
 //  2. [ErrUnterminatedString]. When a string isn't terminated with the double quotation
 //     mark '"'.
-func (s *Scanner) Scan() (*Token, error) {
+func (s *scanner) scan() (*Token, error) {
 	// skips whitespace
 	s.skipWhitespace()
 	s.start = s.current
@@ -144,7 +160,7 @@ func (s *Scanner) Scan() (*Token, error) {
 // This function is called when the leading double quotation mark is consumed, and it
 // consumes the tailing one. If the string is not terminated with '"',
 // [ErrUnterminatedString] is returned.
-func (s *Scanner) scanString() (*Token, error) {
+func (s *scanner) scanString() (*Token, error) {
 	for {
 		peek, ok := s.peek()
 		if !ok || peek == '"' {
@@ -168,7 +184,7 @@ func (s *Scanner) scanString() (*Token, error) {
 // Scans the current token as a number.
 //
 // Numbers consist of an integer part and an optional decimal part.
-func (s *Scanner) scanNumber() (*Token, error) {
+func (s *scanner) scanNumber() (*Token, error) {
 	for {
 		peek, ok := s.peek()
 		if !ok || !isDigit(peek) {
@@ -196,7 +212,7 @@ func (s *Scanner) scanNumber() (*Token, error) {
 //
 // Note that a keyword is a valid identifier, so we need to re-determine its [TokenType]
 // after the token is made.
-func (s *Scanner) scanIdentifier() (*Token, error) {
+func (s *scanner) scanIdentifier() (*Token, error) {
 	for {
 		peek, ok := s.peek()
 		if !ok || !isAlplanumeric(peek) {
@@ -216,7 +232,7 @@ func (s *Scanner) scanIdentifier() (*Token, error) {
 //
 // If there's no more character available, this function returns 0 as rune and a false
 // value indicating the operation is not successful.
-func (s Scanner) peek() (rune, bool) {
+func (s scanner) peek() (rune, bool) {
 	if s.current >= len(s.source) {
 		return 0, false
 	}
@@ -227,7 +243,7 @@ func (s Scanner) peek() (rune, bool) {
 //
 // If there's no more character at next position, this function returns 0 as rune and a
 // false value indicating the operation is not successful.
-func (s Scanner) peekNext() (rune, bool) {
+func (s scanner) peekNext() (rune, bool) {
 	if s.current+1 >= len(s.source) {
 		return 0, false
 	}
@@ -236,7 +252,7 @@ func (s Scanner) peekNext() (rune, bool) {
 
 // Advances the s.current pointer, returns the consumed character, or false if there's no
 // character ahead.
-func (s *Scanner) advance() (rune, bool) {
+func (s *scanner) advance() (rune, bool) {
 	peek, ok := s.peek()
 	if !ok {
 		return 0, false
@@ -250,7 +266,7 @@ func (s *Scanner) advance() (rune, bool) {
 // This function never fails. It only depends on peekNext, which may return a false value
 // indicating there's no character at next position. In that case, this function returns
 // false, because the "next character" is, indeed, not as expected.
-func (s *Scanner) match(expect rune) bool {
+func (s *scanner) match(expect rune) bool {
 	peek, ok := s.peekNext()
 	if !ok {
 		return false
@@ -267,7 +283,7 @@ func (s *Scanner) match(expect rune) bool {
 //
 // This function never fails. It depends on peek, peekNext and advance, which can and can
 // only return [ErrEndOfSource]. It is legal to skip all whitespaces until EOF.
-func (s *Scanner) skipWhitespace() {
+func (s *scanner) skipWhitespace() {
 	for {
 		c, ok := s.peek()
 		if !ok {
@@ -315,7 +331,7 @@ func (s *Scanner) skipWhitespace() {
 }
 
 // Returns a token with given type and source[start:current] as lexeme.
-func (s Scanner) makeToken(t TokenType) *Token {
+func (s scanner) makeToken(t TokenType) *Token {
 	return &Token{
 		Type:   t,
 		Lexeme: string(s.source[s.start:s.current]),

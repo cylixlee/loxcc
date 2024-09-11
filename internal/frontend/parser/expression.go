@@ -59,11 +59,11 @@ func precedenceOf(t scanner.TokenType) Precedence {
 	return None
 }
 
-func (p *Parser) ParseExpression() (ast.Expression, error) {
+func (p *parser) ParseExpression() (ast.Expression, error) {
 	return p.parsePrecedence(Assignment)
 }
 
-func (p *Parser) parsePrecedence(precedence Precedence) (ast.Expression, error) {
+func (p *parser) parsePrecedence(precedence Precedence) (ast.Expression, error) {
 	// consume prefix token
 	prefix, err := p.mustPeek()
 	if err != nil {
@@ -143,7 +143,7 @@ func (p *Parser) parsePrecedence(precedence Precedence) (ast.Expression, error) 
 	return expr, nil
 }
 
-func (p *Parser) parseParenthesized() (ast.Expression, error) {
+func (p *parser) parseParenthesized() (ast.Expression, error) {
 	// consume left parenthesis
 	if _, err := p.mustConsume(scanner.TokLeftParenthesis); err != nil {
 		return nil, err
@@ -162,29 +162,20 @@ func (p *Parser) parseParenthesized() (ast.Expression, error) {
 	return expr, nil
 }
 
-func (p *Parser) parseInvocation(callee ast.Expression) (ast.Expression, error) {
-	// consume left parenthesis
-	if _, err := p.mustConsume(scanner.TokLeftParenthesis); err != nil {
-		return nil, err
-	}
-
+func (p *parser) parseInvocation(callee ast.Expression) (ast.Expression, error) {
 	// parse arguments
 	arguments, err := p.parseArguments()
 	if err != nil {
 		return nil, err
 	}
 
-	// parse right parenthesis
-	if _, err := p.mustConsume(scanner.TokRightParenthesis); err != nil {
-		return nil, err
-	}
 	return ast.InvocationExpression{
 		Callee:    callee,
 		Arguments: arguments,
 	}, nil
 }
 
-func (p *Parser) parseUnary() (ast.Expression, error) {
+func (p *parser) parseUnary() (ast.Expression, error) {
 	operator, err := p.mustAdvance()
 	if err != nil {
 		return nil, err
@@ -201,7 +192,7 @@ func (p *Parser) parseUnary() (ast.Expression, error) {
 	}, nil
 }
 
-func (p *Parser) parseAssignment(left ast.Expression) (ast.Expression, error) {
+func (p *parser) parseAssignment(left ast.Expression) (ast.Expression, error) {
 	// consume operator
 	operator, err := p.mustAdvance()
 	if err != nil {
@@ -221,7 +212,7 @@ func (p *Parser) parseAssignment(left ast.Expression) (ast.Expression, error) {
 	}, nil
 }
 
-func (p *Parser) parseBinary(left ast.Expression) (ast.Expression, error) {
+func (p *parser) parseBinary(left ast.Expression) (ast.Expression, error) {
 	// consume operator
 	operator, err := p.mustAdvance()
 	if err != nil {

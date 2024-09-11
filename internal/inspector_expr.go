@@ -14,29 +14,36 @@ func (a *astInspector) VisitThisLiteral(t ast.ThisLiteral)             { a.print
 func (a *astInspector) VisitSuperLiteral(s ast.SuperLiteral)           { a.printfln("super") }
 
 func (a *astInspector) VisitAssignmentExpression(e ast.AssignmentExpression) {
-	a.indented("assign", func() {
+	a.scope("assignExpr", func() {
+		a.printf("left: ")
 		e.Left.Accept(a)
+		a.printf("right: ")
 		e.Right.Accept(a)
 	})
 }
 
 func (a *astInspector) VisitBinaryExpression(e ast.BinaryExpression) {
-	a.indented(fmt.Sprintf("binary \"%s\"", e.Operator.Lexeme), func() {
+	a.scope(fmt.Sprintf("binaryExpr \"%s\"", e.Operator.Lexeme), func() {
+		a.printf("left: ")
 		e.Left.Accept(a)
+		a.printf("right: ")
 		e.Right.Accept(a)
 	})
 }
 
 func (a *astInspector) VisitUnaryExpression(e ast.UnaryExpression) {
-	a.indented(fmt.Sprintf("unary \"%s\"", e.Operator.Lexeme), func() {
+	a.scope(fmt.Sprintf("unaryExpr \"%s\"", e.Operator.Lexeme), func() {
+		a.printf("operand: ")
 		e.Operand.Accept(a)
 	})
 }
 
 func (a *astInspector) VisitInvocationExpression(e ast.InvocationExpression) {
-	a.indented("invoke", func() {
+	a.scope("invokeExpr", func() {
+		a.printf("callee: ")
 		e.Callee.Accept(a)
-		for _, v := range e.Arguments {
+		for idx, v := range e.Arguments {
+			a.printf("arg%d: ", idx)
 			v.Accept(a)
 		}
 	})

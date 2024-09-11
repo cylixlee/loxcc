@@ -7,7 +7,7 @@ import (
 	stl "github.com/chen3feng/stl4go"
 )
 
-func (p *Parser) ParseDeclaration() (ast.Declaration, error) {
+func (p *parser) ParseDeclaration() (ast.Declaration, error) {
 	peek, err := p.mustPeek()
 	if err != nil {
 		return nil, err
@@ -29,7 +29,7 @@ func (p *Parser) ParseDeclaration() (ast.Declaration, error) {
 	return ast.StatementDeclaration{Stmt: stmt}, nil
 }
 
-func (p *Parser) parseClassDeclaration() (ast.Declaration, error) {
+func (p *parser) parseClassDeclaration() (ast.Declaration, error) {
 	if _, err := p.mustConsume(scanner.TokClass); err != nil {
 		return nil, err
 	}
@@ -67,14 +67,14 @@ func (p *Parser) parseClassDeclaration() (ast.Declaration, error) {
 	}, nil
 }
 
-func (p *Parser) parseFunDeclaration() (ast.Declaration, error) {
+func (p *parser) parseFunDeclaration() (ast.Declaration, error) {
 	if _, err := p.mustConsume(scanner.TokFun); err != nil {
 		return nil, err
 	}
 	return p.parseMethod()
 }
 
-func (p *Parser) parseVarDeclaration() (ast.Declaration, error) {
+func (p *parser) parseVarDeclaration() (ast.Declaration, error) {
 	if _, err := p.mustConsume(scanner.TokVar); err != nil {
 		return nil, err
 	}
@@ -102,22 +102,14 @@ func (p *Parser) parseVarDeclaration() (ast.Declaration, error) {
 	}, nil
 }
 
-func (p *Parser) parseMethod() (ast.Declaration, error) {
+func (p *parser) parseMethod() (ast.Declaration, error) {
 	name, err := p.mustConsume(scanner.TokIdentifier)
 	if err != nil {
 		return nil, err
 	}
 
-	if _, err := p.mustConsume(scanner.TokLeftParenthesis); err != nil {
-		return nil, err
-	}
-
 	parameters, err := p.parseParameters()
 	if err != nil {
-		return nil, err
-	}
-
-	if _, err := p.mustConsume(scanner.TokRightParenthesis); err != nil {
 		return nil, err
 	}
 
@@ -133,7 +125,11 @@ func (p *Parser) parseMethod() (ast.Declaration, error) {
 	}, nil
 }
 
-func (p *Parser) parseParameters() (stl.Vector[*scanner.Token], error) {
+func (p *parser) parseParameters() (stl.Vector[*scanner.Token], error) {
+	if _, err := p.mustConsume(scanner.TokLeftParenthesis); err != nil {
+		return nil, err
+	}
+
 	var parameters stl.Vector[*scanner.Token]
 	if peek := p.peek(); peek != nil && peek.Type == scanner.TokIdentifier {
 		ident, err := p.mustConsume(scanner.TokIdentifier)
@@ -150,27 +146,44 @@ func (p *Parser) parseParameters() (stl.Vector[*scanner.Token], error) {
 			parameters.PushBack(ident)
 		}
 	}
+
+	if _, err := p.mustConsume(scanner.TokRightParenthesis); err != nil {
+		return nil, err
+	}
 	return parameters, nil
 }
 
-func (p *Parser) parseArguments() (stl.Vector[ast.Expression], error) {
+func (p *parser) parseArguments() (stl.Vector[ast.Expression], error) {
+	// consume left parenthesis
+	if _, err := p.mustConsume(scanner.TokLeftParenthesis); err != nil {
+		return nil, err
+	}
+
 	// create vector (slice)
 	var arguments stl.Vector[ast.Expression]
 
-	// parse the first argument
-	expr, err := p.ParseExpression()
-	if err != nil {
-		return nil, err
-	}
-	arguments.PushBack(expr)
-
-	// parse more arguments, each of which is lead by a [TokComma] (,).
-	for p.tryConsume(scanner.TokComma) {
-		expr, err = p.ParseExpression()
+	if !p.tryConsume(scanner.TokRightParenthesis) {
+		// parse the first argument
+		expr, err := p.ParseExpression()
 		if err != nil {
 			return nil, err
 		}
 		arguments.PushBack(expr)
+
+		// parse more arguments, each of which is lead by a [TokComma] (,).
+		for p.tryConsume(scanner.TokComma) {
+			expr, err = p.ParseExpression()
+			if err != nil {
+				return nil, err
+			}
+			arguments.PushBack(expr)
+		}
+
+		// parse right parenthesis
+		if _, err := p.mustConsume(scanner.TokRightParenthesis); err != nil {
+			return nil, err
+		}
 	}
+
 	return arguments, nil
 }

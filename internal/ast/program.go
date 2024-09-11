@@ -5,6 +5,4 @@ import (
 )
 
 // Lox programs consist of declarations.
-type Program struct {
-	definitions stl.Vector[Declaration]
-}
+type Program = stl.Vector[Declaration]

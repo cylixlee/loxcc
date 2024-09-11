@@ -10,14 +10,14 @@ var (
 	ErrUnexpectedToken = errors.New("unexpected token")
 )
 
-func (p Parser) peek() *scanner.Token {
+func (p parser) peek() *scanner.Token {
 	if p.current < p.tokens.Len() {
 		return p.tokens[p.current]
 	}
 	return nil
 }
 
-func (p *Parser) advance() *scanner.Token {
+func (p *parser) advance() *scanner.Token {
 	if p.current < p.tokens.Len() {
 		p.current++
 		return p.tokens[p.current-1]
@@ -25,7 +25,7 @@ func (p *Parser) advance() *scanner.Token {
 	return nil
 }
 
-func (p *Parser) tryConsume(t scanner.TokenType) bool {
+func (p *parser) tryConsume(t scanner.TokenType) bool {
 	if peek := p.peek(); peek != nil {
 		if peek.Type == t {
 			p.advance()
@@ -35,14 +35,14 @@ func (p *Parser) tryConsume(t scanner.TokenType) bool {
 	return false
 }
 
-func (p Parser) mustPeek() (*scanner.Token, error) {
+func (p parser) mustPeek() (*scanner.Token, error) {
 	if peek := p.peek(); peek != nil {
 		return peek, nil
 	}
 	return nil, ErrEarlyEOF
 }
 
-func (p *Parser) mustAdvance() (*scanner.Token, error) {
+func (p *parser) mustAdvance() (*scanner.Token, error) {
 	token := p.advance()
 	if token == nil {
 		return nil, ErrEarlyEOF
@@ -50,7 +50,7 @@ func (p *Parser) mustAdvance() (*scanner.Token, error) {
 	return token, nil
 }
 
-func (p *Parser) mustConsume(t scanner.TokenType) (*scanner.Token, error) {
+func (p *parser) mustConsume(t scanner.TokenType) (*scanner.Token, error) {
 	token, err := p.mustAdvance()
 	if err != nil {
 		return nil, err

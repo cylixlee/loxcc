@@ -6,8 +6,6 @@ import (
 	"loxcc/internal/frontend/parser"
 	"loxcc/internal/frontend/scanner"
 	"os"
-
-	stl "github.com/chen3feng/stl4go"
 )
 
 func main() {
@@ -26,32 +24,23 @@ func main() {
 	// source := string(b)
 
 	// read file
-	b, err := os.ReadFile("example/expr.lox")
+	b, err := os.ReadFile("example/benchmark.lox")
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
 	source := string(b)
 
-	// scan source
-	var tokens stl.Vector[*scanner.Token]
-	s := scanner.NewScanner(source)
-	for {
-		token, err := s.Scan()
-		if err != nil {
-			log.Fatalln(err.Error())
-		}
-
-		if token == nil {
-			break
-		}
-		tokens.PushBack(token)
-	}
-
-	p := parser.NewParser(tokens)
-	expr, err := p.ParseExpression()
+	tokens, err := scanner.Scan(source)
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Fatalln(err.Error())
 	}
 
-	internal.Inspect(expr)
+	program, err := parser.Parse(tokens)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+
+	for _, decl := range program {
+		internal.Inspect(decl)
+	}
 }

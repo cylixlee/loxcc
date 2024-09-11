@@ -7,7 +7,7 @@ import (
 	stl "github.com/chen3feng/stl4go"
 )
 
-func (p *Parser) ParseStatement() (ast.Statement, error) {
+func (p *parser) ParseStatement() (ast.Statement, error) {
 	peek, err := p.mustPeek()
 	if err != nil {
 		return nil, err
@@ -30,7 +30,7 @@ func (p *Parser) ParseStatement() (ast.Statement, error) {
 	return p.parseExpressionStatement()
 }
 
-func (p *Parser) parseExpressionStatement() (ast.Statement, error) {
+func (p *parser) parseExpressionStatement() (ast.Statement, error) {
 	expr, err := p.ParseExpression()
 	if err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func (p *Parser) parseExpressionStatement() (ast.Statement, error) {
 	return ast.ExpressionStatement{Expr: expr}, nil
 }
 
-func (p *Parser) parseForStatement() (ast.Statement, error) {
+func (p *parser) parseForStatement() (ast.Statement, error) {
 	var err error
 
 	if _, err := p.mustConsume(scanner.TokFor); err != nil {
@@ -119,7 +119,7 @@ func (p *Parser) parseForStatement() (ast.Statement, error) {
 	}, nil
 }
 
-func (p *Parser) parseIfStatement() (ast.Statement, error) {
+func (p *parser) parseIfStatement() (ast.Statement, error) {
 	if _, err := p.mustConsume(scanner.TokIf); err != nil {
 		return nil, err
 	}
@@ -129,6 +129,10 @@ func (p *Parser) parseIfStatement() (ast.Statement, error) {
 
 	condition, err := p.ParseExpression()
 	if err != nil {
+		return nil, err
+	}
+
+	if _, err := p.mustConsume(scanner.TokRightParenthesis); err != nil {
 		return nil, err
 	}
 
@@ -151,7 +155,7 @@ func (p *Parser) parseIfStatement() (ast.Statement, error) {
 	}, nil
 }
 
-func (p *Parser) parsePrintStatement() (ast.Statement, error) {
+func (p *parser) parsePrintStatement() (ast.Statement, error) {
 	if _, err := p.mustConsume(scanner.TokPrint); err != nil {
 		return nil, err
 	}
@@ -167,7 +171,7 @@ func (p *Parser) parsePrintStatement() (ast.Statement, error) {
 	return ast.PrintStatement{Value: expr}, nil
 }
 
-func (p *Parser) parseReturnStatement() (ast.Statement, error) {
+func (p *parser) parseReturnStatement() (ast.Statement, error) {
 	var err error
 
 	if _, err := p.mustConsume(scanner.TokReturn); err != nil {
@@ -188,7 +192,7 @@ func (p *Parser) parseReturnStatement() (ast.Statement, error) {
 	return ast.ReturnStatement{Value: returnValue}, nil
 }
 
-func (p *Parser) parseWhileStatement() (ast.Statement, error) {
+func (p *parser) parseWhileStatement() (ast.Statement, error) {
 	if _, err := p.mustConsume(scanner.TokWhile); err != nil {
 		return nil, err
 	}
@@ -216,7 +220,7 @@ func (p *Parser) parseWhileStatement() (ast.Statement, error) {
 	}, nil
 }
 
-func (p *Parser) parseBlockStatement() (ast.Statement, error) {
+func (p *parser) parseBlockStatement() (ast.Statement, error) {
 	if _, err := p.mustConsume(scanner.TokLeftBrace); err != nil {
 		return nil, err
 	}

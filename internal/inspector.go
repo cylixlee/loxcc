@@ -15,7 +15,7 @@ type astInspector struct {
 }
 
 func (a *astInspector) scope(title string, f func()) {
-	a.printfln("<%s> {", title)
+	a.printfln("%s {", title)
 	a.indent++
 	f()
 	a.indent--
@@ -32,8 +32,18 @@ func (a *astInspector) printf(format string, v ...any) {
 	fmt.Printf(format, v...)
 }
 
+func (a *astInspector) println(v ...any) {
+	if !a.indented {
+		for range a.indent {
+			fmt.Print("  ")
+		}
+		a.indented = true
+	}
+	fmt.Println(v...)
+	a.indented = false
+}
+
 func (a *astInspector) printfln(format string, v ...any) {
 	a.printf(format, v...)
-	fmt.Println()
-	a.indented = false
+	a.println()
 }

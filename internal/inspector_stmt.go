@@ -3,13 +3,11 @@ package internal
 import "loxcc/internal/ast"
 
 func (a *astInspector) VisitExpressionStatement(s ast.ExpressionStatement) {
-	a.scope("exprStmt", func() {
-		s.Expr.Accept(a)
-	})
+	s.Expr.Accept(a)
 }
 
 func (a *astInspector) VisitForStatement(s ast.ForStatement) {
-	a.scope("forStmt", func() {
+	a.scope("ForStmt", func() {
 		if s.Initializer != nil {
 			a.printf("initializer: ")
 			switch s.Initializer.Kind {
@@ -36,7 +34,7 @@ func (a *astInspector) VisitForStatement(s ast.ForStatement) {
 }
 
 func (a *astInspector) VisitIfStatement(s ast.IfStatement) {
-	a.scope("ifStmt", func() {
+	a.scope("IfStmt", func() {
 		a.printf("condition: ")
 		s.Condition.Accept(a)
 		a.printf("then: ")
@@ -49,21 +47,21 @@ func (a *astInspector) VisitIfStatement(s ast.IfStatement) {
 }
 
 func (a *astInspector) VisitPrintStatement(s ast.PrintStatement) {
-	a.scope("printStmt", func() {
+	a.scope("PrintStmt", func() {
 		a.printf("expr: ")
 		s.Value.Accept(a)
 	})
 }
 
 func (a *astInspector) VisitReturnStatement(s ast.ReturnStatement) {
-	a.scope("returnStmt", func() {
+	a.scope("ReturnStmt", func() {
 		a.printf("expr: ")
 		s.Value.Accept(a)
 	})
 }
 
 func (a *astInspector) VisitWhileStatement(s ast.WhileStatement) {
-	a.scope("while", func() {
+	a.scope("WhileStmt", func() {
 		a.printf("condition: ")
 		s.Condition.Accept(a)
 		a.printf("body: ")
@@ -72,7 +70,7 @@ func (a *astInspector) VisitWhileStatement(s ast.WhileStatement) {
 }
 
 func (a *astInspector) VisitBlockStatement(s ast.BlockStatement) {
-	a.scope("blockStmt", func() {
+	a.scope("BlockStmt", func() {
 		for _, v := range s.Content {
 			v.Accept(a)
 		}

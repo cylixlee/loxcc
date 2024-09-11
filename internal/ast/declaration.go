@@ -1,6 +1,10 @@
 package ast
 
-import stl "github.com/chen3feng/stl4go"
+import (
+	"loxcc/internal/frontend/scanner"
+
+	stl "github.com/chen3feng/stl4go"
+)
 
 type Declaration interface {
 	Accept(DeclarationVisitor)
@@ -14,19 +18,19 @@ type DeclarationVisitor interface {
 }
 
 type ClassDeclaration struct {
-	Name      string
-	Baseclass string
-	Methods   stl.Vector[FunctionDeclaration]
+	Name      *scanner.Token
+	Baseclass *scanner.Token
+	Methods   stl.Vector[Declaration]
 }
 
 type FunctionDeclaration struct {
-	Name       string
-	Parameters stl.Vector[string]
-	Body       BlockStatement
+	Name       *scanner.Token
+	Parameters stl.Vector[*scanner.Token]
+	Body       Statement
 }
 
 type VarDeclaration struct {
-	Name        string
+	Name        *scanner.Token
 	Initializer Expression
 }
 

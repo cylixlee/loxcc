@@ -31,7 +31,7 @@ type ExpressionStatement struct {
 
 type ForLoopInitializer struct {
 	Kind            ForInitializerKind
-	VarInitializer  VarDeclaration
+	VarInitializer  Declaration
 	ExprInitializer Expression
 }
 

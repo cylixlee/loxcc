@@ -8,7 +8,26 @@ import (
 )
 
 func (p *Parser) ParseStatement() (ast.Statement, error) {
-	panic("unimplemented")
+	peek, err := p.mustPeek()
+	if err != nil {
+		return nil, err
+	}
+
+	switch peek.Type {
+	case scanner.TokFor:
+		return p.parseForStatement()
+	case scanner.TokIf:
+		return p.parseIfStatement()
+	case scanner.TokPrint:
+		return p.parsePrintStatement()
+	case scanner.TokReturn:
+		return p.parseReturnStatement()
+	case scanner.TokWhile:
+		return p.parseWhileStatement()
+	case scanner.TokLeftBrace:
+		return p.parseBlockStatement()
+	}
+	return p.parseExpressionStatement()
 }
 
 func (p *Parser) parseExpressionStatement() (ast.Statement, error) {
@@ -26,10 +45,10 @@ func (p *Parser) parseExpressionStatement() (ast.Statement, error) {
 func (p *Parser) parseForStatement() (ast.Statement, error) {
 	var err error
 
-	if _, err = p.mustConsume(scanner.TokFor); err != nil {
+	if _, err := p.mustConsume(scanner.TokFor); err != nil {
 		return nil, err
 	}
-	if _, err = p.mustConsume(scanner.TokLeftParenthesis); err != nil {
+	if _, err := p.mustConsume(scanner.TokLeftParenthesis); err != nil {
 		return nil, err
 	}
 
@@ -41,15 +60,21 @@ func (p *Parser) parseForStatement() (ast.Statement, error) {
 		}
 
 		if peek.Type == scanner.TokVar {
-			// initializer = ast.ForLoopInitializer{
-			// 	Kind:           ast.VarDecl,
-			// 	VarInitializer: ast.VarDeclaration{},
-			// }
+			decl, err := p.parseVarDeclaration()
+			if err != nil {
+				return nil, err
+			}
+
+			initializer = &ast.ForLoopInitializer{
+				Kind:           ast.VarDecl,
+				VarInitializer: decl,
+			}
 		} else {
 			expr, err := p.ParseExpression()
 			if err != nil {
 				return nil, err
 			}
+
 			initializer = &ast.ForLoopInitializer{
 				Kind:            ast.InitExpr,
 				ExprInitializer: expr,
@@ -59,10 +84,6 @@ func (p *Parser) parseForStatement() (ast.Statement, error) {
 
 	var condition ast.Expression
 	if !p.tryConsume(scanner.TokSemicolon) {
-		//nolint:staticcheck
-		//
-		// The [condition] variable, whether nil or not, is finally passed to the
-		// [ast.ForStatement] object. It's a false positive.
 		condition, err = p.ParseExpression()
 		if err != nil {
 			return nil, err
@@ -76,10 +97,6 @@ func (p *Parser) parseForStatement() (ast.Statement, error) {
 
 	var incrementer ast.Expression
 	if !p.tryConsume(scanner.TokRightParenthesis) {
-		//nolint:staticcheck
-		//
-		// The [incrementer], whether nil or not, is finally passed to [ast.ForStatement]
-		// object. It's false positive due to staticcheck.
 		incrementer, err = p.ParseExpression()
 		if err != nil {
 			return nil, err
@@ -110,7 +127,6 @@ func (p *Parser) parseIfStatement() (ast.Statement, error) {
 		return nil, err
 	}
 
-	//nolint:staticcheck
 	condition, err := p.ParseExpression()
 	if err != nil {
 		return nil, err

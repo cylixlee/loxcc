@@ -16,7 +16,7 @@
  * from Lox source is not specified.
  *
  * LOXCRT source uses [LOXMANGLE] macro to declare and define APIs, while the mangling of
- * user code is handled by [loxcc]. LOXCRT APIs do not depend on any user code except
+ * user code is handled by LoxCC. LOXCRT APIs do not depend on any user code except
  * entrypoint, so the entrypoint is mangled as a runtime API.
  *
  * Thus, calling a user-defined function will not lead to implicit errors of calling the

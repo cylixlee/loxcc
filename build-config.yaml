@@ -13,4 +13,4 @@
 
 outputFolderName: build
 ccPath: gcc
-deleteSourceAfterBuild: true
+deleteSourceAfterBuild: false

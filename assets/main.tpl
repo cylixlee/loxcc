@@ -4,6 +4,7 @@
 #include "value.h"
 #include "entrypoint.h"
 
-void LOXMANGLE(entrypoint)() {
-    {{ . }}
+void LRT_Entrypoint() {
+    LRT_Value value = {{ . }};
+    LRT_Print(value);
 }

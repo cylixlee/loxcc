@@ -1,12 +1,38 @@
 package backend
 
-import "loxcc/internal/ast"
+import (
+	"loxcc/internal/ast"
+	"loxcc/internal/frontend/scanner"
+)
 
-func (c *codeGenerator) VisitNilLiteral(n ast.NilLiteral)         { panic("unimplemented") }
-func (c *codeGenerator) VisitBooleanLiteral(b ast.BooleanLiteral) { panic("unimplemented") }
+var (
+	binopFuncMap = map[scanner.TokenType]string{
+		scanner.TokPlus:         "LRT_Add",
+		scanner.TokMinus:        "LRT_Subtract",
+		scanner.TokStar:         "LRT_Multiply",
+		scanner.TokSlash:        "LRT_Divide",
+		scanner.TokEqualEqual:   "LRT_Equal",
+		scanner.TokGreater:      "LRT_Greater",
+		scanner.TokLess:         "LRT_Less",
+		scanner.TokBangEqual:    "LRT_NotEqual",
+		scanner.TokLessEqual:    "LRT_LessEqual",
+		scanner.TokGreaterEqual: "LRT_GreaterEqual",
+	}
+
+	uopFuncMap = map[scanner.TokenType]string{
+		scanner.TokMinus: "LRT_Negate",
+		scanner.TokBang:  "LRT_Not",
+	}
+)
+
+func (c *codeGenerator) VisitNilLiteral(n ast.NilLiteral) { c.write("NIL_VAL") }
+
+func (c *codeGenerator) VisitBooleanLiteral(b ast.BooleanLiteral) {
+	c.writef("BOOLEAN_VAL(%v)", b)
+}
 
 func (c *codeGenerator) VisitNumberLiteral(n ast.NumberLiteral) {
-	c.writef("%v", n)
+	c.writef("NUMBER_VAL(%v)", n)
 }
 
 func (c *codeGenerator) VisitStringLiteral(s ast.StringLiteral)         { panic("unimplemented") }
@@ -21,8 +47,17 @@ func (c *codeGenerator) VisitBinaryExpression(e ast.BinaryExpression) {
 	c.write("(")
 	defer c.write(")")
 
+	if f, exists := binopFuncMap[e.Operator.Type]; exists {
+		c.write(f)
+	} else {
+		panic("unrecognized binary operator")
+	}
+
+	c.write("(")
+	defer c.write(")")
+
 	e.Left.Accept(c)
-	c.write(e.Operator.Lexeme)
+	c.write(", ")
 	e.Right.Accept(c)
 }
 
@@ -30,7 +65,15 @@ func (c *codeGenerator) VisitUnaryExpression(e ast.UnaryExpression) {
 	c.write("(")
 	defer c.write(")")
 
-	c.write(e.Operator.Lexeme)
+	if f, exists := uopFuncMap[e.Operator.Type]; exists {
+		c.write(f)
+	} else {
+		panic("unrecognized unary operator")
+	}
+
+	c.write("(")
+	defer c.write(")")
+
 	e.Operand.Accept(c)
 }
 

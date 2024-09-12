@@ -14,7 +14,7 @@
  * However, Lox is a dynamically-typed language with OOP and GC support, which means
  * some runtime preparation is needed.
  */
-void LOXMANGLE(entrypoint)();
+void LRT_Entrypoint();
 
 /**
  * The C standard entrypoint.

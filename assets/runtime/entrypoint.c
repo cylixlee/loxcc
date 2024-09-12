@@ -4,6 +4,6 @@ int main(int argc, const char *argv[])
 {
     // currently, we have no runtime preparation needed.
     // GC is not yet introduced.
-    (LOXMANGLE(entrypoint))();
+    LRT_Entrypoint();
     return 0;
 }

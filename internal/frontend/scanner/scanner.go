@@ -267,7 +267,7 @@ func (s *scanner) advance() (rune, bool) {
 // indicating there's no character at next position. In that case, this function returns
 // false, because the "next character" is, indeed, not as expected.
 func (s *scanner) match(expect rune) bool {
-	peek, ok := s.peekNext()
+	peek, ok := s.peek()
 	if !ok {
 		return false
 	}

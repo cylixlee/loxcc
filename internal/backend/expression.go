@@ -77,4 +77,6 @@ func (c *codeGenerator) VisitUnaryExpression(e ast.UnaryExpression) {
 	e.Operand.Accept(c)
 }
 
-func (c *codeGenerator) VisitInvocationExpression(e ast.InvocationExpression) { panic("unimplemented") }
+func (c *codeGenerator) VisitInvocationExpression(e ast.InvocationExpression) {
+	panic("unimplemented")
+}

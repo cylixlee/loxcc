@@ -3,79 +3,114 @@
 
 #include "prelude.h"
 
-typedef enum
+// tells C++ compiler to compile this as C.
+#ifdef __cplusplus
+extern "C"
 {
-    LBoolean,
-    LNil,
-    LNumber,
-} LRT_ValueType;
+#endif
 
-typedef struct
-{
-    LRT_ValueType type;
-    union
+    /**
+     * Type declarations and typedefs.
+     *
+     * Instead of writing typedefs everywhere a struct is defined, writing them together
+     * at the beginning of a header file is more tidy and good for circular referencing.
+     */
+
+    // clang-format off
+
+    struct LRT_Object;    // external, in "object.h"
+    enum   LRT_ValueType;
+    struct LRT_Value;
+
+    typedef struct LRT_Object    LRT_Object;
+    typedef enum   LRT_ValueType LRT_ValueType;
+    typedef struct LRT_Value     LRT_Value;
+
+    // clang-format on
+
+    enum LRT_ValueType
     {
-        bool boolean;
-        double number;
-    } as;
-} LRT_Value;
+        LVAL_Boolean,
+        LVAL_Nil,
+        LVAL_Number,
+        LVAL_Object,
+    };
 
-// clang-format off
+    struct LRT_Value
+    {
+        LRT_ValueType type;
+        union
+        {
+            bool boolean;
+            double number;
+            LRT_Object *object;
+        } as;
+    };
 
-/**
- * Lox Value Utilities
- *
- * Compiling Lox values to C is a difficult work. Without language-level support for some
- * features (e.g. implicit type conversion, operator overloading, etc.), we have to seek
- * for macros and functions' help.
- *
- * These macros & functions below are about value initialization, type-check, conversion
- * and other operations. By simply compiling Lox expressions to macro-wrapped C
- * expressions, we can simplify LoxCC a lot.
- */
+    /**
+     * Lox Value Utilities
+     *
+     * Compiling Lox values to C is a difficult work. Without language-level support for some
+     * features (e.g. implicit type conversion, operator overloading, etc.), we have to seek
+     * for macros and functions' help.
+     *
+     * These macros & functions below are about value initialization, type-check, conversion
+     * and other operations. By simply compiling Lox expressions to macro-wrapped C
+     * expressions, we can simplify LoxCC a lot.
+     */
 
-#define BOOLEAN_VAL(_Value)   ((LRT_Value){LBoolean, {.boolean = (_Value)}})
-#define NIL_VAL               ((LRT_Value){LNil, {.number = 0}})
-#define NUMBER_VAL(_Value)    ((LRT_Value){LNumber, {.number = (_Value)}})
+    // clang-format off
 
-#define IS_BOOLEAN(_Value) ((_Value).type == LBoolean)
-#define IS_NIL(_Value)     ((_Value).type == LNil)
-#define IS_NUMBER(_Value)  ((_Value).type == LNumber)
+#define BOOLEAN_VAL(_Value)   ((LRT_Value){LVAL_Boolean, {.boolean = (_Value)}})
+#define NIL_VAL               ((LRT_Value){LVAL_Nil, {.number = 0}})
+#define NUMBER_VAL(_Value)    ((LRT_Value){LVAL_Number, {.number = (_Value)}})
+#define OBJECT_VAL(_Value)    ((LRT_Value){LVAL_Object, {.object = (_Value)}})
 
-#define AS_BOOLEAN(_Value)   ((_Value).as.boolean)
-#define AS_NUMBER(_Value)    ((_Value).as.number)
+#define IS_BOOLEAN(_Value) ((_Value).type == LVAL_Boolean)
+#define IS_NIL(_Value)     ((_Value).type == LVAL_Nil)
+#define IS_NUMBER(_Value)  ((_Value).type == LVAL_Number)
+#define IS_OBJECT(_Value)  ((_Value).type == LVAL_Object)
 
-// clang-format on
+#define AS_BOOLEAN(_Value) ((_Value).as.boolean)
+#define AS_NUMBER(_Value)  ((_Value).as.number)
+#define AS_OBJECT(_Value)  ((_Value).as.object)
 
-/**
- * Binary operations
- */
+    // clang-format on
 
-LRT_Value LRT_Add(LRT_Value, LRT_Value);
-LRT_Value LRT_Subtract(LRT_Value, LRT_Value);
-LRT_Value LRT_Multiply(LRT_Value, LRT_Value);
-LRT_Value LRT_Divide(LRT_Value, LRT_Value);
+    /**
+     * Binary operations
+     */
 
-LRT_Value LRT_Equal(LRT_Value, LRT_Value);
-LRT_Value LRT_Greater(LRT_Value, LRT_Value);
-LRT_Value LRT_Less(LRT_Value, LRT_Value);
+    LRT_Value LRT_Add(LRT_Value, LRT_Value);
+    LRT_Value LRT_Subtract(LRT_Value, LRT_Value);
+    LRT_Value LRT_Multiply(LRT_Value, LRT_Value);
+    LRT_Value LRT_Divide(LRT_Value, LRT_Value);
 
-LRT_Value LRT_NotEqual(LRT_Value, LRT_Value);
-LRT_Value LRT_LessEqual(LRT_Value, LRT_Value);
-LRT_Value LRT_GreaterEqual(LRT_Value, LRT_Value);
+    LRT_Value LRT_Equal(LRT_Value, LRT_Value);
+    LRT_Value LRT_Greater(LRT_Value, LRT_Value);
+    LRT_Value LRT_Less(LRT_Value, LRT_Value);
 
-/**
- * Unary operations
- */
+    LRT_Value LRT_NotEqual(LRT_Value, LRT_Value);
+    LRT_Value LRT_LessEqual(LRT_Value, LRT_Value);
+    LRT_Value LRT_GreaterEqual(LRT_Value, LRT_Value);
 
-LRT_Value LRT_Negate(LRT_Value);
-LRT_Value LRT_Not(LRT_Value);
+    /**
+     * Unary operations
+     */
 
-/**
- * Builtin functionalities
- */
+    LRT_Value LRT_Negate(LRT_Value);
+    LRT_Value LRT_Not(LRT_Value);
 
-bool LRT_FalsinessOf(LRT_Value);
-void LRT_Print(LRT_Value);
+    /**
+     * Builtin functionalities
+     */
+
+    bool LRT_FalsinessOf(LRT_Value);
+    void LRT_Print(LRT_Value);
+
+// tells C++ compiler to compile this as C.
+#ifdef __cplusplus
+}
+#endif
 
 #endif

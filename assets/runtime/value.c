@@ -24,9 +24,9 @@ LRT_Value LRT_Equal(LRT_Value left, LRT_Value right)
     
     switch (left.type)
     {
-    case LBoolean: return BOOLEAN_VAL(AS_BOOLEAN(left) == AS_BOOLEAN(right));
-    case LNil:     return BOOLEAN_VAL(true);
-    case LNumber:  return BOOLEAN_VAL(AS_NUMBER(left) == AS_NUMBER(right));
+    case LVAL_Boolean: return BOOLEAN_VAL(AS_BOOLEAN(left) == AS_BOOLEAN(right));
+    case LVAL_Nil:     return BOOLEAN_VAL(true);
+    case LVAL_Number:  return BOOLEAN_VAL(AS_NUMBER(left) == AS_NUMBER(right));
     default:
         LRT_Panic("unreachable LRT_Equal");
     }
@@ -63,12 +63,12 @@ void LRT_Print(LRT_Value value)
     // clang-format off
     switch (value.type)
     {
-    case LBoolean:
+    case LVAL_Boolean:
         printf("%s", AS_BOOLEAN(value) ? "true" : "false");
         break;
 
-    case LNil:    printf("nil");                  break;
-    case LNumber: printf("%g", AS_NUMBER(value)); break;
+    case LVAL_Nil:    printf("nil");                  break;
+    case LVAL_Number: printf("%g", AS_NUMBER(value)); break;
     }
     // clang-format on
 }

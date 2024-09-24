@@ -12,11 +12,11 @@ Lox to C compiler, with corresponding runtime implementation in C.
 1. My implementation [rlox](https://github.com/cylixlee/rlox) is not as **fast** as [clox](https://github.com/munificent/craftinginterpreters/tree/master/c)
 2. An **AOT** language (with or without additional runtime), instead of JIT/Interpreted language, is what I've been seeking for.
 
-Thus, the LoxCC project is spawned. Similar to *older version of* [Go](https://go.dev/), there will be a C implementation of Lox Runtime (aka LRT), which is compiled together with Lox programs.
+Thus, the LoxCC project is spawned. Similar to *older version of* [Go](https://go.dev/), there will be a C implementation of Lox C Runtime, which is compiled together with Lox programs.
 
 ## Architecture
 
-For now, the LoxCC is directly targeting C. The compiler direcly generates corresponding C code, copies the LRT to the output directory, and (optionally) calls the system C compiler. 
+For now, the LoxCC is directly targeting C. The compiler direcly generates corresponding C code, copies the LOXCRT to the output directory, and (optionally) calls the system C compiler. 
 > For more compiler behavior, see [build configs](#build-configs).
 
 ```mermaid
@@ -25,7 +25,7 @@ graph LR
 L[Lox Program]
 A[AST]
 O[Generated C code]
-R["Lox Runtime (LRT)"]
+R["Lox C Runtime (LOXCRT)"]
 C[System C Compiler]
 E[Executable Binaries]
 
@@ -39,7 +39,7 @@ C --> E
 As the graph describes, the pipeline of compiling a Lox program using LoxCC is as below:
 1. **Scan** the source of Lox Program, and creates corresponding AST (Abstract Syntax Tree).
 2. **Transform** the AST into C codes.
-3. **Copy** the handwritten LRT to the output directory.
+3. **Copy** the handwritten LOXCRT to the output directory.
 4. (optional) **Call** the system C compiler.
 
 ## Build Configs
@@ -48,7 +48,7 @@ The build configs are written in [YAML](https://yaml.org/), a very expressive se
 
  | Key                      | Description & Behavior                                                                                                                                                                                 | Example   |
  | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------- |
- | `outputFolderName`       | Where to put generated C code and LRT. Must be a directory.                                                                                                                                            | `"build"` |
+ | `outputFolderName`       | Where to put generated C code and LOXCRT. Must be a directory.                                                                                                                                         | `"build"` |
  | `ccPath`                 | The system C compiler path. <br>LoxCC will try to compile generated C code into executables if this is specified.                                                                                      | `"gcc"`   |
  | `deleteSourceAfterBuild` | Whether to delete them when the generated C files are successfully compiled into executables. <br> Note the sources are not deleted if the compilation is not successful or `ccPath` is not specified. | `true`    |
 

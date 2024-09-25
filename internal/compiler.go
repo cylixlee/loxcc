@@ -53,12 +53,17 @@ func Compile(config BuildConfig, path, source string) {
 
 		// (optional) cleanup C source
 		if config.DeleteSourceAfterBuild {
+			// remove source files
+			if err := os.Remove(sourcePath); err != nil {
+				log.Fatalln(err.Error())
+			}
 			for _, v := range rt {
 				if err := os.Remove(v); err != nil {
 					log.Fatalln(err.Error())
 				}
 			}
-			if err := os.Remove(sourcePath); err != nil {
+			// remove "runtime" directory
+			if err := os.Remove(filepath.Join(outputFolder, "runtime")); err != nil {
 				log.Fatalln(err.Error())
 			}
 		}

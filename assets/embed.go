@@ -31,6 +31,11 @@ func init() {
 func CopyRuntime(folder string) stl.Vector[string] {
 	var filenames stl.Vector[string]
 
+	runtimePath := filepath.Join(folder, "runtime")
+	if err := os.MkdirAll(runtimePath, 0666); err != nil {
+		log.Fatalln(err.Error())
+	}
+
 	entries, err := Runtime.ReadDir("runtime")
 	if err != nil {
 		panic(err)
@@ -45,7 +50,7 @@ func CopyRuntime(folder string) stl.Vector[string] {
 		}
 
 		// writing to OS filesystem may fail, message is logged if so
-		to := filepath.Join(folder, v.Name())
+		to := filepath.Join(runtimePath, v.Name())
 		if err := os.WriteFile(to, data, 0666); err != nil {
 			log.Fatalln(err.Error())
 		}

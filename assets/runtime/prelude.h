@@ -1,7 +1,7 @@
 #ifndef LOXCRT_PRELUDE_H
 #define LOXCRT_PRELUDE_H
 
-// tells C++ compiler to compile this as C.
+// tells C++ compiler to treat the code as C source.
 #ifdef __cplusplus
 extern "C"
 {
@@ -29,7 +29,7 @@ extern "C"
 
     void LRT_Panic(const char *message);
 
-// tells C++ compiler to compile this as C.
+// tells C++ compiler to treat the code as C source.
 #ifdef __cplusplus
 }
 #endif

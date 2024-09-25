@@ -1,12 +1,16 @@
 #include "value.h"
 #include <stdio.h>
+#include <string.h>
+#include "object.h"
 
-#define BINARY_OP(_Ty, _Operator, _Left, _Right) \
+static void LRT_PrintObject(LRT_Value value);
+
+#define BINARY_OP(_As, _Operator, _Left, _Right) \
     if (!IS_NUMBER(_Left) || !IS_NUMBER(_Right)) \
     {                                            \
         LRT_Panic("operands must be numbers");   \
     }                                            \
-    return _Ty(AS_NUMBER(_Left) _Operator AS_NUMBER(_Right));
+    return _As(AS_NUMBER(_Left) _Operator AS_NUMBER(_Right));
 
 // clang-format off
 
@@ -27,8 +31,19 @@ LRT_Value LRT_Equal(LRT_Value left, LRT_Value right)
     case LVAL_Boolean: return BOOLEAN_VAL(AS_BOOLEAN(left) == AS_BOOLEAN(right));
     case LVAL_Nil:     return BOOLEAN_VAL(true);
     case LVAL_Number:  return BOOLEAN_VAL(AS_NUMBER(left) == AS_NUMBER(right));
+    case LVAL_Object:
+        LRT_StringObject *leftString  = AS_STRING(left);
+        LRT_StringObject *rightString = AS_STRING(right);
+        return BOOLEAN_VAL(
+            leftString->length == rightString->length &&
+            memcmp(
+                leftString->chars, 
+                rightString->chars, 
+                leftString->length
+            ) == 0
+        );
     default:
-        LRT_Panic("unreachable LRT_Equal");
+        LRT_Panic("unreachable code (LOXCRT::Equal)");
     }
 }
 
@@ -69,6 +84,21 @@ void LRT_Print(LRT_Value value)
 
     case LVAL_Nil:    printf("nil");                  break;
     case LVAL_Number: printf("%g", AS_NUMBER(value)); break;
+    case LVAL_Object: LRT_PrintObject(value);         break;
+    default:
+        LRT_Panic("unreachable code (LOXCRT::Print)");
     }
     // clang-format on
+}
+
+static void LRT_PrintObject(LRT_Value value)
+{
+    switch (OBJ_TYPE(value))
+    {
+    case LOBJ_String:
+        printf("%s", AS_CSTR(value));
+        break;
+    default:
+        LRT_Panic("unreachable code (LOXCRT::PrintObject)");
+    }
 }

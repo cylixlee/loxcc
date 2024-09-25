@@ -4,7 +4,7 @@
 #include "prelude.h"
 #include "value.h"
 
-// tells C++ compiler to compile this as C.
+// tells C++ compiler to treat the code as C source.
 #ifdef __cplusplus
 extern "C"
 {
@@ -46,6 +46,8 @@ extern "C"
         char *chars;
     };
 
+    LRT_StringObject *LRT_NewString(const char *, size_t length);
+
     /**
      * Utilities for objects' type check.
      */
@@ -66,7 +68,7 @@ extern "C"
 
     // clang-format on
 
-// tells C++ compiler to compile this as C.
+// tells C++ compiler to treat the code as C source.
 #ifdef __cplusplus
 }
 #endif

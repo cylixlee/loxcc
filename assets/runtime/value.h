@@ -3,7 +3,7 @@
 
 #include "prelude.h"
 
-// tells C++ compiler to compile this as C.
+// tells C++ compiler to treat the code as C source.
 #ifdef __cplusplus
 extern "C"
 {
@@ -108,7 +108,7 @@ extern "C"
     bool LRT_FalsinessOf(LRT_Value);
     void LRT_Print(LRT_Value);
 
-// tells C++ compiler to compile this as C.
+// tells C++ compiler to treat the code as C source.
 #ifdef __cplusplus
 }
 #endif

@@ -2,7 +2,7 @@
 #
 # LoxCC compiles Lox source to C source, along with Lox C Runtime (LOXCRT)
 # implementations. There's more than one C file, so a [outputFolderName] should be
-# specified. LoxCC will output all related C files into this folder.  
+# specified. LoxCC will output all related C files into this folder.
 #
 # If an [ccPath] is configured, LoxCC tries to compile the generated C source into
 # binary. This operation may fail if C compiler is not found.
@@ -13,4 +13,4 @@
 
 outputFolderName: build
 ccPath: gcc
-deleteSourceAfterBuild: true
+deleteSourceAfterBuild: false

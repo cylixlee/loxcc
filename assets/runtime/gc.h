@@ -2,6 +2,7 @@
 #define LOXCRT_GC_H
 
 #include "prelude.h"
+#include "object.h"
 
 // tells C++ compiler to treat the code as C source.
 #ifdef __cplusplus
@@ -16,9 +17,10 @@ extern "C"
      * at the beginning of a header file is more tidy and good for circular referencing.
      */
 
-    struct LRT_Object; // external, in "object.h"
+    void LRT_InitializeGC();
+    void LRT_FinalizeGC();
 
-    typedef struct LRT_Object LRT_Object;
+    LRT_Object *LRT_AllocateObject(size_t size, LRT_ObjectType type);
 
     /**
      * The universal allocation function of LOXCRT.
@@ -46,6 +48,10 @@ extern "C"
 
 // Convenient macro for allocation using `LRT_Reallocate`.
 #define ALLOCATE(_Type, _Count) ((_Type *)(LRT_Reallocate(NULL, 0, sizeof(_Type) * _Count)))
+#define FREE(_Ptr, _Type, _Count) ((_Type *)(LRT_Reallocate(_Ptr, sizeof(_Type) * _Count, 0)))
+
+// convenient macro for allocating objects.
+#define ALLOCATE_OBJ(_Type, _ObjectType) ((_Type *)LRT_AllocateObject(sizeof(_Type), _ObjectType))
 
 // tells C++ compiler to treat the code as C source.
 #ifdef __cplusplus

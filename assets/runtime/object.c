@@ -2,25 +2,34 @@
 #include <string.h>
 #include "gc.h"
 
-// the underlying function to create objects.
-//
-// this is necessary to add newly created objects to VM's heap, to perform GC on.
-static inline LRT_Object *LRT_AllocateObject(size_t size, LRT_ObjectType type);
-
-// convenient macro for allocating objects.
-#define ALLOCATE_OBJ(_Type, _ObjectType) ((_Type *)LRT_AllocateObject(sizeof(_Type), _ObjectType))
-
 LRT_StringObject *LRT_NewString(const char *chars, size_t length)
 {
     LRT_StringObject *string = ALLOCATE_OBJ(LRT_StringObject, LOBJ_String);
     string->length = length;
-    string->chars = strcpy(string->chars, chars);
+    string->chars = ALLOCATE(char, length + 1);
+    strcpy(string->chars, chars);
+    string->chars[length] = '\0';
     return string;
 }
 
-static inline LRT_Object *LRT_AllocateObject(size_t size, LRT_ObjectType type)
+LRT_StringObject *LRT_TakeString(char *chars, size_t length)
 {
-    LRT_Object *object = LRT_Reallocate(NULL, 0, size);
-    object->type = type;
-    return object;
+    LRT_StringObject *string = ALLOCATE_OBJ(LRT_StringObject, LOBJ_String);
+    string->chars = chars;
+    string->length = length;
+    return string;
+}
+
+void LRT_FinalizeObject(LRT_Object *object)
+{
+    switch (object->type)
+    {
+    case LOBJ_String:
+        LRT_StringObject *strobj = (LRT_StringObject *)object;
+        FREE(strobj->chars, char, strobj->length + 1);
+        FREE(strobj, LRT_StringObject, 1);
+        break;
+    default:
+        LRT_Panic("unreachable code (LOXCRT::FinalizeObject)");
+    }
 }

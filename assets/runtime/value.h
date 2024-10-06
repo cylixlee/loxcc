@@ -64,7 +64,7 @@ extern "C"
 #define BOOLEAN_VAL(_Value)   ((LRT_Value){LVAL_Boolean, {.boolean = (_Value)}})
 #define NIL_VAL               ((LRT_Value){LVAL_Nil, {.number = 0}})
 #define NUMBER_VAL(_Value)    ((LRT_Value){LVAL_Number, {.number = (_Value)}})
-#define OBJECT_VAL(_Value)    ((LRT_Value){LVAL_Object, {.object = (_Value)}})
+#define OBJECT_VAL(_Value)    ((LRT_Value){LVAL_Object, {.object = ((LRT_Object *)(_Value))}})
 
 #define IS_BOOLEAN(_Value) ((_Value).type == LVAL_Boolean)
 #define IS_NIL(_Value)     ((_Value).type == LVAL_Nil)

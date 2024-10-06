@@ -4,6 +4,7 @@
 #include "runtime/entrypoint.h"
 #include "runtime/value.h"
 #include "runtime/object.h"
+#include "runtime/gc.h"
 
 void LRT_Entrypoint() {
     LRT_Value value = {{ . }};

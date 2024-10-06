@@ -35,7 +35,10 @@ func (c *codeGenerator) VisitNumberLiteral(n ast.NumberLiteral) {
 	c.writef("NUMBER_VAL(%v)", n)
 }
 
-func (c *codeGenerator) VisitStringLiteral(s ast.StringLiteral)         { panic("unimplemented") }
+func (c *codeGenerator) VisitStringLiteral(s ast.StringLiteral) {
+	c.writef("OBJECT_VAL(LRT_NewString(%v, %v))", s, len(s)-2)
+}
+
 func (c *codeGenerator) VisitIdentifierLiteral(i ast.IdentifierLiteral) { panic("unimplemented") }
 func (c *codeGenerator) VisitThisLiteral(t ast.ThisLiteral)             { panic("unimplemented") }
 func (c *codeGenerator) VisitSuperLiteral(s ast.SuperLiteral)           { panic("unimplemented") }

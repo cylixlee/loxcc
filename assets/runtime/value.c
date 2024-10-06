@@ -2,8 +2,10 @@
 #include <stdio.h>
 #include <string.h>
 #include "object.h"
+#include "gc.h"
 
 static void LRT_PrintObject(LRT_Value value);
+static LRT_Value LRT_Concatenate(LRT_Value left, LRT_Value right);
 
 #define BINARY_OP(_As, _Operator, _Left, _Right) \
     if (!IS_NUMBER(_Left) || !IS_NUMBER(_Right)) \
@@ -12,9 +14,16 @@ static void LRT_PrintObject(LRT_Value value);
     }                                            \
     return _As(AS_NUMBER(_Left) _Operator AS_NUMBER(_Right));
 
-// clang-format off
+LRT_Value LRT_Add(LRT_Value left, LRT_Value right)
+{
+    if (IS_STRING(left) && IS_STRING(right))
+    {
+        return LRT_Concatenate(left, right);
+    }
+    BINARY_OP(NUMBER_VAL, +, left, right);
+}
 
-LRT_Value LRT_Add(LRT_Value left, LRT_Value right)      { BINARY_OP(NUMBER_VAL, +, left, right); }
+// clang-format off
 LRT_Value LRT_Subtract(LRT_Value left, LRT_Value right) { BINARY_OP(NUMBER_VAL, -, left, right); }
 LRT_Value LRT_Multiply(LRT_Value left, LRT_Value right) { BINARY_OP(NUMBER_VAL, *, left, right); }
 LRT_Value LRT_Divide(LRT_Value left, LRT_Value right)   { BINARY_OP(NUMBER_VAL, /, left, right); }
@@ -101,4 +110,19 @@ static void LRT_PrintObject(LRT_Value value)
     default:
         LRT_Panic("unreachable code (LOXCRT::PrintObject)");
     }
+}
+
+static LRT_Value LRT_Concatenate(LRT_Value left, LRT_Value right)
+{
+    LRT_StringObject *leftString = AS_STRING(left);
+    LRT_StringObject *rightString = AS_STRING(right);
+
+    size_t length = leftString->length + rightString->length;
+    char *chars = ALLOCATE(char, length + 1);
+    memcpy(chars, leftString->chars, leftString->length);
+    memcpy(chars + leftString->length, rightString->chars, rightString->length);
+    chars[length] = '\0';
+
+    LRT_StringObject *result = LRT_TakeString(chars, length);
+    return OBJECT_VAL(result);
 }

@@ -37,6 +37,7 @@ extern "C"
     struct LRT_Object
     {
         LRT_ObjectType type;
+        struct LRT_Object *next;
     };
 
     struct LRT_StringObject
@@ -47,6 +48,9 @@ extern "C"
     };
 
     LRT_StringObject *LRT_NewString(const char *, size_t length);
+    LRT_StringObject *LRT_TakeString(char *chars, size_t length);
+
+    void LRT_FinalizeObject(LRT_Object *);
 
     /**
      * Utilities for objects' type check.
@@ -56,7 +60,7 @@ extern "C"
 
 #define OBJ_TYPE(_Value) (AS_OBJECT(_Value)->type)
 
-    inline bool isinstance(LRT_Value value, LRT_ObjectType type)
+    static inline bool isinstance(LRT_Value value, LRT_ObjectType type)
     {
         return IS_OBJECT(value) && OBJ_TYPE(value) == type;
     }

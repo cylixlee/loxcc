@@ -1,9 +1,10 @@
 #include "entrypoint.h"
+#include "gc.h"
 
 int main(int argc, const char *argv[])
 {
-    // currently, we have no runtime preparation needed.
-    // GC is not yet introduced.
+    LRT_InitializeGC();
     LRT_Entrypoint();
+    LRT_FinalizeGC();
     return 0;
 }

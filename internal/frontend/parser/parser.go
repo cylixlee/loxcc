@@ -8,7 +8,7 @@ import (
 )
 
 func Parse(tokens stl.Vector[*scanner.Token]) (ast.Program, error) {
-	var decls stl.Vector[ast.Declaration]
+	decls := stl.MakeVector[ast.Declaration]()
 	p := parser{
 		tokens:  tokens,
 		current: 0,

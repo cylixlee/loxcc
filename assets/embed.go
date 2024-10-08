@@ -29,7 +29,7 @@ func init() {
 }
 
 func CopyRuntime(folder string) stl.Vector[string] {
-	var filenames stl.Vector[string]
+	filenames := stl.MakeVector[string]()
 
 	runtimePath := filepath.Join(folder, "runtime")
 	if err := os.MkdirAll(runtimePath, 0666); err != nil {

@@ -225,7 +225,7 @@ func (p *parser) parseBlockStatement() (ast.Statement, error) {
 		return nil, err
 	}
 
-	var declarations stl.Vector[ast.Declaration]
+	declarations := stl.MakeVector[ast.Declaration]()
 	for !p.tryConsume(scanner.TokRightBrace) {
 		decl, err := p.ParseDeclaration()
 		if err != nil {

@@ -72,7 +72,7 @@ func Scan[S ~string](source S) (stl.Vector[*Token], error) {
 		current: 0,
 		lineno:  1,
 	}
-	var tokens stl.Vector[*Token]
+	tokens := stl.MakeVector[*Token]()
 
 	for {
 		token, err := s.scan()

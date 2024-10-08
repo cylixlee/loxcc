@@ -47,7 +47,7 @@ func (p *parser) parseClassDeclaration() (ast.Declaration, error) {
 		}
 	}
 
-	var methods stl.Vector[ast.Declaration]
+	methods := stl.MakeVector[ast.Declaration]()
 	if _, err := p.mustConsume(scanner.TokLeftBrace); err != nil {
 		return nil, err
 	}
@@ -130,7 +130,7 @@ func (p *parser) parseParameters() (stl.Vector[*scanner.Token], error) {
 		return nil, err
 	}
 
-	var parameters stl.Vector[*scanner.Token]
+	parameters := stl.MakeVector[*scanner.Token]()
 	if peek := p.peek(); peek != nil && peek.Type == scanner.TokIdentifier {
 		ident, err := p.mustConsume(scanner.TokIdentifier)
 		if err != nil {
@@ -160,7 +160,7 @@ func (p *parser) parseArguments() (stl.Vector[ast.Expression], error) {
 	}
 
 	// create vector (slice)
-	var arguments stl.Vector[ast.Expression]
+	arguments := stl.MakeVector[ast.Expression]()
 
 	if !p.tryConsume(scanner.TokRightParenthesis) {
 		// parse the first argument

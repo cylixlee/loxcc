@@ -17,7 +17,7 @@ func (a *astInspector) VisitClassDeclaration(d ast.ClassDeclaration) {
 }
 
 func (a *astInspector) VisitFunctionDeclaration(d ast.FunctionDeclaration) {
-	var params stl.Vector[string]
+	params := stl.MakeVector[string]()
 	for _, v := range d.Parameters {
 		params.PushBack(fmt.Sprint("$", v.Lexeme))
 	}

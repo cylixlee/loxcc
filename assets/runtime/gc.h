@@ -45,11 +45,12 @@ extern "C"
      *
      * `oldSize` | `newSize`              | Behavior
      * ----------|------------------------|----------------------------
-     * 0         | 0                      | Nothing happens.
+     * 0         | 0                      | Returns NULL.
      * 0         | Non-zero               | Allocate new block.
      * Non-zero  | 0                      | Free allocation.
      * Non-zero  | Smaller than `oldSize` | Shrink existing allocation.
      * Non-zero  | Larger than `oldSize`  | Grow existing allocation.
+     * Non-zero  | Equals to `oldSize`    | Returns the given pointer.
      *
      * If a new block of memory is allocated, it is ensured to be initialized with
      * zero-value.

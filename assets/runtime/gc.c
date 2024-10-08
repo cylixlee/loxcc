@@ -2,15 +2,19 @@
 #include <stdlib.h>
 #include <string.h>
 
+/**
+ * The Garbage Collector.
+ *
+ * This is a private struct variable because other parts of LOXCRT should not rely on the
+ * internal implementation of GC. They should call exposed interfaces instead.
+ */
 struct
 {
+    // The linked list of allocated objects.
     LRT_Object *objects;
 } GC;
 
-void LRT_InitializeGC()
-{
-    GC.objects = NULL;
-}
+void LRT_InitializeGC() { GC.objects = NULL; }
 
 void LRT_FinalizeGC()
 {
@@ -26,8 +30,8 @@ void LRT_FinalizeGC()
 LRT_Object *LRT_AllocateObject(size_t size, LRT_ObjectType type)
 {
     LRT_Object *object = LRT_Reallocate(NULL, 0, size);
-    object->type = type;
-    object->next = GC.objects;
+    object->type = type;       // maintain type information.
+    object->next = GC.objects; // add object to the linked list.
     GC.objects = object;
     return object;
 }
@@ -48,6 +52,7 @@ void *LRT_Reallocate(void *pointer, size_t oldSize, size_t newSize)
         {
             LRT_Panic("allocation failure; may be out of memory");
         }
+        // zero-initialization can avoid lots of undefined behaviors.
         memset(pointer, 0, newSize);
         return pointer;
     }

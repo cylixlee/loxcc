@@ -3,7 +3,6 @@
 
 #include "prelude.h"
 
-// tells C++ compiler to treat the code as C source.
 #ifdef __cplusplus
 extern "C"
 {
@@ -31,7 +30,6 @@ extern "C"
      */
     int main(int argc, const char *argv[]);
 
-// tells C++ compiler to treat the code as C source.
 #ifdef __cplusplus
 }
 #endif

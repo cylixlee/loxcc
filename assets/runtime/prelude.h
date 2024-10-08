@@ -1,7 +1,6 @@
 #ifndef LOXCRT_PRELUDE_H
 #define LOXCRT_PRELUDE_H
 
-// tells C++ compiler to treat the code as C source.
 #ifdef __cplusplus
 extern "C"
 {
@@ -27,9 +26,14 @@ extern "C"
 #include <stddef.h>
 #include <stdint.h>
 
+    /**
+     * The runtime panic handler.
+     *
+     * When a runtime error is detected, this function should be called. It prints the
+     * given message to `stderr`, and exits the program with a non-zero value.
+     */
     void LRT_Panic(const char *message);
 
-// tells C++ compiler to treat the code as C source.
 #ifdef __cplusplus
 }
 #endif

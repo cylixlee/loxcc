@@ -1,6 +1,6 @@
 #include "object.h"
-#include <string.h>
-#include "gc.h"
+#include <string.h> // for string manipulation
+#include "gc.h"     // for unified allocation
 
 LRT_StringObject *LRT_NewString(const char *chars, size_t length)
 {

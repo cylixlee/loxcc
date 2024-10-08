@@ -1,5 +1,5 @@
 #include "entrypoint.h"
-#include "gc.h"
+#include "gc.h" // for GC functionalities
 
 int main(int argc, const char *argv[])
 {

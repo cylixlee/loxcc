@@ -2,77 +2,97 @@
 #define LOXCRT_OBJECT_H
 
 #include "prelude.h"
-#include "value.h"
+#include "value.h" // for Object-Value type check.
 
-// tells C++ compiler to treat the code as C source.
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
     /**
-     * Type declarations and typedefs.
+     * All possible types of Objects.
      *
-     * Instead of writing typedefs everywhere a struct is defined, writing them together
-     * at the beginning of a header file is more tidy and good for circular referencing.
+     * From a runtime's perspective, categories of objects are exhaustible. For example,
+     * user-defined classes are of type `Class`, and instances of them are of type
+     * `Instance`.
      */
-
-    // clang-format off
-
-    enum   LRT_ObjectType;
-    struct LRT_Object;
-    struct LRT_StringObject;
-
-    typedef enum   LRT_ObjectType   LRT_ObjectType;
-    typedef struct LRT_Object       LRT_Object;
-    typedef struct LRT_StringObject LRT_StringObject;
-
-    // clang-format on
-
-    enum LRT_ObjectType
+    typedef enum
     {
         LOBJ_String,
-    };
+    } LRT_ObjectType;
 
-    struct LRT_Object
+    /**
+     * The basic definition of objects.
+     *
+     * Specifically, in C, this struct is placed as a certain object type's first field,
+     * in order to make the pointer types of which mutual convertible. This is, to some
+     * extent, a poor guy's polymorphism.
+     */
+    typedef struct LRT_Object
     {
-        LRT_ObjectType type;
-        struct LRT_Object *next;
-    };
+        LRT_ObjectType type;     // type information
+        struct LRT_Object *next; // a field for **intrusive** linked list
+    } LRT_Object;
 
-    struct LRT_StringObject
+    /**
+     * Lox Strings.
+     *
+     * Lox Strings are immutable objects, which contains a cluster of chars and the length
+     * of that. Trailing `\0` is preserved in order to convert to C-style strings easily.
+     */
+    typedef struct
     {
         LRT_Object meta;
         size_t length;
         char *chars;
-    };
+    } LRT_StringObject;
 
-    LRT_StringObject *LRT_NewString(const char *, size_t length);
-    LRT_StringObject *LRT_TakeString(char *chars, size_t length);
-
-    void LRT_FinalizeObject(LRT_Object *);
+    // Create a Lox String from a C-style string literal.
+    LRT_StringObject *LRT_NewString(const char *literal, size_t length);
 
     /**
-     * Utilities for objects' type check.
+     * Create a Lox String from a pointer to chars and the length.
+     *
+     * Note that the pointer is then **taken** by the created String object, which means
+     * the pointer should not be freed somewhere else. The chars should be `\0` ended, and
+     * the length should be correct.
      */
+    LRT_StringObject *LRT_TakeString(char *chars, size_t length);
 
-    // clang-format off
+    /**
+     * The unified function to finalize an object.
+     *
+     * This function should be called **only** by GC, as other parts of code should not
+     * release memory manually. This function promises to free the object correctly
+     * according to its actual definition.
+     */
+    void LRT_FinalizeObject(LRT_Object *object);
 
-#define OBJ_TYPE(_Value) (AS_OBJECT(_Value)->type)
+// Convenient way to get a Object Value's ObjectType.
+#define TYPEOF(_Value) (AS_OBJECT(_Value)->type)
 
+    /**
+     * Check whether a value is an instance of a certain ObjectType.
+     *
+     * It only returns true when the value is an object, and it matches the given
+     * ObjectType. It's not a macro because the value may be an expression, which could be
+     * evaluated twice in a macro.
+     *
+     * It's `static inline`ed to avoid conflict definition.
+     */
     static inline bool isinstance(LRT_Value value, LRT_ObjectType type)
     {
-        return IS_OBJECT(value) && OBJ_TYPE(value) == type;
+        return IS_OBJECT(value) && TYPEOF(value) == type;
     }
 
+// Convenient macro for checking whether a Value is a String.
 #define IS_STRING(_Value) isinstance(_Value, LOBJ_String)
 
-#define AS_STRING(_Value) ((LRT_StringObject*)AS_OBJECT(_Value))
-#define AS_CSTR(_Value)   (AS_STRING(_Value)->chars)
+// Convenient macro for convert a Value to a String.
+#define AS_STRING(_Value) ((LRT_StringObject *)AS_OBJECT(_Value))
+// Convenient macro for convert a Value to a C-style string.
+#define AS_CSTR(_Value) (AS_STRING(_Value)->chars)
 
-    // clang-format on
-
-// tells C++ compiler to treat the code as C source.
 #ifdef __cplusplus
 }
 #endif

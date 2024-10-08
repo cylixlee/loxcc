@@ -25,18 +25,18 @@ var (
 	}
 )
 
-func (c *codeGenerator) VisitNilLiteral(n ast.NilLiteral) { c.write("NIL_VAL") }
+func (c *codeGenerator) VisitNilLiteral(n ast.NilLiteral) { c.write("NIL") }
 
 func (c *codeGenerator) VisitBooleanLiteral(b ast.BooleanLiteral) {
-	c.writef("BOOLEAN_VAL(%v)", b)
+	c.writef("BOOLEAN(%v)", b)
 }
 
 func (c *codeGenerator) VisitNumberLiteral(n ast.NumberLiteral) {
-	c.writef("NUMBER_VAL(%v)", n)
+	c.writef("NUMBER(%v)", n)
 }
 
 func (c *codeGenerator) VisitStringLiteral(s ast.StringLiteral) {
-	c.writef("OBJECT_VAL(LRT_NewString(%v, %v))", s, len(s)-2)
+	c.writef("OBJECT(LRT_NewString(%v, %v))", s, len(s)-2)
 }
 
 func (c *codeGenerator) VisitIdentifierLiteral(i ast.IdentifierLiteral) { panic("unimplemented") }

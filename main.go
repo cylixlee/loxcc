@@ -49,6 +49,6 @@ func main() {
 
 	code := backend.Generate(program)
 
-	// write to FS and (optionally) execute CC
-	internal.Compile(config, os.Args[1], code)
+	// internal.Compile(config, os.Args[1], code)
+	internal.Build(config, os.Args[1], code)
 }

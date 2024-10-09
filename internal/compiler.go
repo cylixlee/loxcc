@@ -17,6 +17,21 @@ type BuildConfig struct {
 	DeleteSourceAfterBuild bool   `yaml:"deleteSourceAfterBuild"`
 }
 
+func Build(config BuildConfig, filename, source string) {
+	filename, err := filepath.Abs(filename)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	dir := filepath.Join(filepath.Dir(filename), config.OutputFolderName)
+
+	unpacker := assets.NewRuntimeUnpacker(dir)
+	unpacker.Unpack()
+	if config.CcPath != "" && config.DeleteSourceAfterBuild {
+		defer unpacker.Remove()
+	}
+}
+
+// Deprecated: Coupled too tight. Use Build instead.
 func Compile(config BuildConfig, path, source string) {
 	parentFolder := filepath.Dir(path)
 	outputFolder := filepath.Join(parentFolder, config.OutputFolderName)

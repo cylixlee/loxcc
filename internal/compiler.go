@@ -11,6 +11,31 @@ import (
 	stl "github.com/chen3feng/stl4go"
 )
 
+type systemCC struct {
+	path       string
+	outputName string
+}
+
+func newSystemCC(path, outputName string) systemCC {
+	return systemCC{
+		path:       path,
+		outputName: outputName,
+	}
+}
+
+func (sc systemCC) Compile(sources stl.Vector[string]) {
+	// command arguments
+	args := stl.MakeVectorOf("-o", sc.outputName)
+	args.Append(sources...)
+
+	cmd := exec.Command(sc.path, args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		log.Fatalln(err.Error())
+	}
+}
+
 type BuildConfig struct {
 	OutputFolderName       string `yaml:"outputFolderName"`
 	CcPath                 string `yaml:"ccPath"`
@@ -18,69 +43,43 @@ type BuildConfig struct {
 }
 
 func Build(config BuildConfig, filename, source string) {
-	filename, err := filepath.Abs(filename)
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
 	dir := filepath.Join(filepath.Dir(filename), config.OutputFolderName)
+	deletion := config.CcPath != "" && config.DeleteSourceAfterBuild
 
+	// unpack LOXCRT
 	unpacker := assets.NewRuntimeUnpacker(dir)
 	unpacker.Unpack()
-	if config.CcPath != "" && config.DeleteSourceAfterBuild {
+	if deletion {
 		defer unpacker.Remove()
+	}
+
+	// output generated C code
+	correspond := filepath.Join(dir, filepath.Base(filename)+".c")
+	if err := os.WriteFile(correspond, []byte(source), 0666); err != nil {
+		log.Fatalln(err.Error())
+	}
+	if deletion {
+		defer os.Remove(correspond)
+	}
+
+	// (optional) call system CC
+	if config.CcPath != "" {
+		outputName := filepath.Join(dir, removeExt(filepath.Base(correspond)))
+		cc := newSystemCC(config.CcPath, outputName)
+		sources := stl.MakeVectorOf(correspond)
+		for source := range unpacker.Sources() {
+			sources.PushBack(source)
+		}
+		cc.Compile(sources)
 	}
 }
 
-// Deprecated: Coupled too tight. Use Build instead.
-func Compile(config BuildConfig, path, source string) {
-	parentFolder := filepath.Dir(path)
-	outputFolder := filepath.Join(parentFolder, config.OutputFolderName)
-	ext := filepath.Ext(path)
-	filename := filepath.Base(path)
-	filenameWithoutSuffix := strings.TrimSuffix(filename, ext)
-
-	// prepare output folder
-	if err := os.MkdirAll(outputFolder, 0666); err != nil {
-		log.Fatalln(err.Error())
-	}
-
-	// write generated source to file.
-	sourcePath := filepath.Join(outputFolder, filename) + ".c"
-	if err := os.WriteFile(sourcePath, []byte(source), 0666); err != nil {
-		log.Fatalln(err.Error())
-	}
-
-	// copy runtime
-	rt := assets.CopyRuntime(outputFolder)
-
-	// (optional) call CC
-	if config.CcPath != "" {
-		binaryPath := filepath.Join(outputFolder, filenameWithoutSuffix)
-		args := stl.MakeVectorOf("-o", binaryPath, sourcePath)
-		args.Append(rt...)
-
-		cmd := exec.Command(config.CcPath, args...)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		if err := cmd.Run(); err != nil {
-			log.Fatalln(err.Error())
+func removeExt(path string) string {
+	for {
+		ext := filepath.Ext(path)
+		if ext == "" {
+			return path
 		}
-
-		// (optional) cleanup C source
-		if config.DeleteSourceAfterBuild {
-			// remove source files
-			if err := os.Remove(sourcePath); err != nil {
-				log.Fatalln(err.Error())
-			}
-			for _, v := range rt {
-				if err := os.Remove(v); err != nil {
-					log.Fatalln(err.Error())
-				}
-			}
-			// remove "runtime" directory
-			if err := os.Remove(filepath.Join(outputFolder, "runtime")); err != nil {
-				log.Fatalln(err.Error())
-			}
-		}
+		path = strings.TrimSuffix(path, ext)
 	}
 }

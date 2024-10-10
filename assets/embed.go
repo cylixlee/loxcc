@@ -6,7 +6,6 @@ import (
 	"iter"
 	"log"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 	"text/template"
@@ -17,11 +16,10 @@ import (
 var (
 	//go:embed main.tpl
 	tpl string
-
-	sourceExts = stl.MakeBuiltinSetOf(".c", ".h")
-
 	//go:embed runtime
-	Runtime    embed.FS
+	rt embed.FS
+
+	sourceExts = stl.MakeBuiltinSetOf(".c")
 	Entrypoint *template.Template
 )
 
@@ -50,7 +48,7 @@ func NewRuntimeUnpacker(path string) *RuntimeUnpacker {
 }
 
 func (ru *RuntimeUnpacker) Unpack() {
-	err := fs.WalkDir(Runtime, ".", func(path string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(rt, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -67,7 +65,7 @@ func (ru *RuntimeUnpacker) Unpack() {
 			}
 		} else {
 			// read data from file
-			data, err := Runtime.ReadFile(path)
+			data, err := rt.ReadFile(path)
 			if err != nil {
 				return err
 			}
@@ -109,37 +107,4 @@ func (ru RuntimeUnpacker) Sources() iter.Seq[string] {
 			return true
 		})
 	}
-}
-
-// Deprecated: coupled too tight.
-func CopyRuntime(folder string) stl.Vector[string] {
-	filenames := stl.MakeVector[string]()
-
-	runtimePath := filepath.Join(folder, "runtime")
-	if err := os.MkdirAll(runtimePath, 0666); err != nil {
-		log.Fatalln(err.Error())
-	}
-
-	entries, err := Runtime.ReadDir("runtime")
-	if err != nil {
-		panic(err)
-	}
-
-	for _, v := range entries {
-		// reading from embed.FS should not fail, program panics if so
-		from := path.Join("runtime", v.Name())
-		data, err := Runtime.ReadFile(from)
-		if err != nil {
-			panic(err)
-		}
-
-		// writing to OS filesystem may fail, message is logged if so
-		to := filepath.Join(runtimePath, v.Name())
-		if err := os.WriteFile(to, data, 0666); err != nil {
-			log.Fatalln(err.Error())
-		}
-
-		filenames.PushBack(to)
-	}
-	return filenames
 }

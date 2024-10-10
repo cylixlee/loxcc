@@ -6,10 +6,15 @@ import (
 	stl "github.com/chen3feng/stl4go"
 )
 
+// Lox expressions.
+//
+// Expression is defined as an interface for polymorphism, and visitor pattern is
+// introduced to separate the code generation from AST.
 type Expression interface {
 	Accept(ExpressionVisitor)
 }
 
+// Visitor of Lox expressions.
 type ExpressionVisitor interface {
 	VisitNilLiteral(NilLiteral)
 	VisitBooleanLiteral(BooleanLiteral)

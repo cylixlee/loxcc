@@ -2,109 +2,49 @@ package assets
 
 import (
 	"embed"
-	"io/fs"
-	"iter"
-	"log"
-	"os"
-	"path/filepath"
-	"strings"
 	"text/template"
-
-	stl "github.com/chen3feng/stl4go"
 )
 
 var (
+	// The text template to create a C source file according to a Lox program.
+	//
+	// Different C declarations (e.g. functions, variables) should be placed at different
+	// segments of a single C source file, so a text template is introduced.
+	//
+	// The template file is embedded for convenience.
+	//
 	//go:embed main.tpl
 	tpl string
+
+	// The Lox C Runtime.
+	//
+	// To provide the dynamic features and extra language components (e.g. GC), some
+	// runtime preparation is needed. Since we're transpiling Lox to C, the runtime part
+	// called LOXCRT is implemented in C.
+	//
+	// Before compilation, the LOXCRT files are copied to the output directory, and
+	// compiled together with the template-generated C code into an executable.
+	//
+	// The whole directory containing all the runtime implementation is embedded.
+	//
 	//go:embed runtime
 	rt embed.FS
 
-	sourceExts = stl.MakeBuiltinSetOf(".c")
+	// The text template of generated C code.
+	//
+	// For now, each Lox source file will generate exactly one C file. Different syntax
+	// elements (e.g. functions, variables) are transpiled as corresponding C code at
+	// different segments of the generated file.
+	//
+	// This template is parsed when the packaged is imported, from the embedded template
+	// text.
 	Entrypoint *template.Template
 )
 
 func init() {
-	t, err := template.New("main").Parse(tpl)
+	t, err := template.New("").Parse(tpl)
 	if err != nil {
 		panic(err)
 	}
 	Entrypoint = t
-}
-
-type RuntimeUnpacker struct {
-	path     string
-	unpacked *stl.DList[string]
-}
-
-func NewRuntimeUnpacker(path string) *RuntimeUnpacker {
-	path, err := filepath.Abs(path)
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
-	return &RuntimeUnpacker{
-		path:     path,
-		unpacked: stl.NewDList[string](),
-	}
-}
-
-func (ru *RuntimeUnpacker) Unpack() {
-	err := fs.WalkDir(rt, ".", func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if path == "." { // do nothing at root
-			return nil
-		}
-		correspond := filepath.Join(ru.path, path)
-
-		if d.IsDir() {
-			// mkdir if the entry is dir
-			if err := os.MkdirAll(correspond, 0777); err != nil {
-				return err
-			}
-		} else {
-			// read data from file
-			data, err := rt.ReadFile(path)
-			if err != nil {
-				return err
-			}
-
-			// write to OS filesystem
-			if err := os.WriteFile(correspond, data, 0666); err != nil {
-				return err
-			}
-		}
-		ru.unpacked.PushBack(correspond)
-		return nil
-	})
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
-}
-
-func (ru *RuntimeUnpacker) Remove() {
-	for {
-		path, exist := ru.unpacked.PopBack()
-		if !exist {
-			break
-		}
-		if err := os.RemoveAll(path); err != nil {
-			log.Fatalln(err.Error())
-		}
-	}
-}
-
-func (ru RuntimeUnpacker) Sources() iter.Seq[string] {
-	return func(yield func(string) bool) {
-		ru.unpacked.ForEachIf(func(path string) bool {
-			ext := strings.ToLower(filepath.Ext(path))
-			if sourceExts.Has(ext) {
-				if !yield(path) {
-					return false
-				}
-			}
-			return true
-		})
-	}
 }

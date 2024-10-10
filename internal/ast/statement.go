@@ -9,8 +9,16 @@ const (
 	InitExpr
 )
 
+// The kind of the initializer of Lox for-loops.
+//
+// Much like C, Lox permits variable declaration, expression, or nothing in a for-loop's
+// initializer. The real kind is recorded using this byte value.
 type ForInitializerKind byte
 
+// Lox statements.
+//
+// Statement is defined as an interface for polymorphism, and visitor pattern is
+// introduced to separate the code generation from AST.
 type Statement interface {
 	Accept(StatementVisitor)
 }

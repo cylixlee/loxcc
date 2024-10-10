@@ -29,19 +29,21 @@ static LRT_TableEntry *LRT_FindEntry(LRT_TableEntry *entries, size_t capacity, L
 // Extend the table to reserve space for new elements.
 static void LRT_AdjustCapacity(LRT_Table *table, size_t newCapacity);
 
-LRT_Table *LRT_NewTable()
+LRT_Table LRT_NewTable()
 {
-    LRT_Table *table = ALLOCATE(LRT_Table, 1);
-    table->length = 0;
-    table->capacity = 0;
-    table->entries = NULL;
-    return table;
+    return (LRT_Table){
+        .length = 0,
+        .capacity = 0,
+        .entries = NULL,
+    };
 }
 
 void LRT_DropTable(LRT_Table *table)
 {
     FREE(table->entries, LRT_TableEntry, table->capacity);
-    FREE(table, LRT_Table, 1);
+    table->length = 0;
+    table->capacity = 0;
+    table->entries = NULL;
 }
 
 bool LRT_TableGet(LRT_Table *table, LRT_StringObject *key, LRT_Value *value)

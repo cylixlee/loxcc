@@ -44,7 +44,7 @@ extern "C"
         LRT_TableEntry *entries;
     } LRT_Table;
 
-    LRT_Table *LRT_NewTable();            // Create a new Table.
+    LRT_Table LRT_NewTable();             // Create a new Table.
     void LRT_DropTable(LRT_Table *table); // Drop the Table.
 
     /**

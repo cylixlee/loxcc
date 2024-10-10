@@ -2,6 +2,7 @@
 #include <stdlib.h> // for memory allocation & exiting program
 #include <string.h> // for `memset`
 #include <stdio.h>  // for (error) output
+#include "table.h"  // for String interning
 
 /**
  * The Garbage Collector.
@@ -12,6 +13,7 @@
 struct
 {
     LRT_Object *objects; // linked list of allocated objects
+    LRT_Table strings;   // string pool, all strings are interned in Lox
     size_t allocated;
     size_t freed;
 } GC;
@@ -21,6 +23,7 @@ void LRT_InitializeGC()
     GC.objects = NULL;
     GC.allocated = 0;
     GC.freed = 0;
+    GC.strings = LRT_NewTable();
 }
 
 void LRT_FinalizeGC()
@@ -32,6 +35,8 @@ void LRT_FinalizeGC()
         LRT_FinalizeObject(object);
         object = next;
     }
+
+    LRT_DropTable(&GC.strings);
 
 #ifdef GC_TRACE
     printf("=== GC Total Allocated: %llu\n", GC.allocated);

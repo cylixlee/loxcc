@@ -82,6 +82,10 @@ void *LRT_Reallocate(void *pointer, size_t oldSize, size_t newSize)
     // free block if newSize is 0
     if (newSize == 0)
     {
+        if (pointer == NULL)
+        {
+            LRT_Panic("trying to free NULL pointer with non-zero size");
+        }
         GC.freed += oldSize; // record size of freed memory
         free(pointer);
         return NULL;

@@ -6,6 +6,7 @@
 #include "runtime/value.h"
 #include "runtime/object.h"
 #include "runtime/gc.h"
+#include "runtime/table.h"
 
 void LRT_Entrypoint() {
     LRT_Value value = {{ . }};

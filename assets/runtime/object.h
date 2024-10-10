@@ -45,11 +45,11 @@ extern "C"
         LRT_Object meta;
         size_t length;
         char *chars;
+        uint32_t hash;
     } LRT_StringObject;
 
     // Create a Lox String from a C-style string literal.
     LRT_StringObject *LRT_NewString(const char *literal, size_t length);
-
     /**
      * Create a Lox String from a pointer to chars and the length.
      *

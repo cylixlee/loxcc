@@ -46,7 +46,17 @@ void LRT_DropTable(LRT_Table *table)
 
 bool LRT_TableGet(LRT_Table *table, LRT_StringObject *key, LRT_Value *value)
 {
-    // TODO...
+    if (table->length == 0)
+    {
+        return false;
+    }
+    LRT_TableEntry *entry = LRT_FindEntry(table->entries, table->capacity, key);
+    if (entry->key == NULL)
+    {
+        return false;
+    }
+    *value = entry->value;
+    return true;
 }
 
 bool LRT_TableSet(LRT_Table *table, LRT_StringObject *key, LRT_Value value)
@@ -61,7 +71,7 @@ bool LRT_TableSet(LRT_Table *table, LRT_StringObject *key, LRT_Value value)
     // find an entry and judge if it's a new key
     LRT_TableEntry *entry = LRT_FindEntry(table->entries, table->capacity, key);
     bool isNewKey = entry->key == NULL;
-    if (isNewKey)
+    if (isNewKey && IS_NIL(entry->value))
     {
         table->length++;
     }
@@ -70,6 +80,22 @@ bool LRT_TableSet(LRT_Table *table, LRT_StringObject *key, LRT_Value value)
     entry->key = key;
     entry->value = value;
     return isNewKey;
+}
+
+bool LRT_TableDelete(LRT_Table *table, LRT_StringObject *key)
+{
+    if (table->length == 0)
+    {
+        return false;
+    }
+    LRT_TableEntry *entry = LRT_FindEntry(table->entries, table->capacity, key);
+    if (entry->key == NULL)
+    {
+        return false;
+    }
+    entry->key = NULL;
+    entry->value = BOOLEAN(true);
+    return true;
 }
 
 void LRT_TableAddAll(LRT_Table *to, LRT_Table *from)
@@ -88,15 +114,28 @@ void LRT_TableAddAll(LRT_Table *to, LRT_Table *from)
 static LRT_TableEntry *LRT_FindEntry(LRT_TableEntry *entries, size_t capacity, LRT_StringObject *key)
 {
     size_t index = key->hash % capacity; // find index according to the hash
+    LRT_TableEntry *tombstone = NULL;
     for (;;)
     {
         LRT_TableEntry *entry = &entries[index];
-        if (entry->key == key || entry->key == NULL)
+        if (entry->key == NULL)
         {
-            // if there matches the key or empty entry, just return.
-            return entry;
+            if (IS_NIL(entry->value))
+            {
+                // if we've found a tombstone which matches the hash, just use it;
+                // otherwise, we return the empty entry for Get or Set.
+                return tombstone != NULL ? tombstone : entry;
+            }
+            else
+            {
+                // if we've found a tombstone for the first time, record it.
+                if (tombstone == NULL)
+                {
+                    tombstone = entry;
+                }
+            }
         }
-        // otherwise, linear probe until an empty entry is found.
+        // linear probe until an empty entry is found.
         index = (index + 1) % capacity;
     }
     // the loop will definitely end because we've adjusted the capacity before finding an
@@ -119,6 +158,9 @@ static void LRT_AdjustCapacity(LRT_Table *table, size_t newCapacity)
     // (probably) not continuously stored. Moreover, all existing entries are re-indexed
     // because capacity matters in indexing entries (from the hash value), and now the
     // capacity has changed.
+    //
+    // Tombstones are cleared when adjusting capacity. Reset the length.
+    table->length = 0;
     for (size_t i = 0; i < table->capacity; i++)
     {
         LRT_TableEntry *source = &table->entries[i];
@@ -129,6 +171,7 @@ static void LRT_AdjustCapacity(LRT_Table *table, size_t newCapacity)
         LRT_TableEntry *destination = LRT_FindEntry(newEntries, newCapacity, source->key);
         destination->key = source->key;
         destination->value = source->value;
+        table->length++;
     }
 
     // free the old entries and fill it with the new one.

@@ -62,6 +62,17 @@ extern "C"
      * is added and a `true` value is returned.
      */
     bool LRT_TableSet(LRT_Table *table, LRT_StringObject *key, LRT_Value value);
+    /**
+     * Delete an entry from the Table.
+     *
+     * Actually, we don't set the entry to the NIL value; that may misguide the TableGet
+     * to stop searching neighboring entries if hash conflicts happen. Instead, we'll set
+     * the key to NULL and the value to BOOLEAN(true), which indicates this is a tombstone
+     * value.
+     *
+     * If the corresponding entry exists, a `true` is returned.
+     */
+    bool LRT_TableDelete(LRT_Table *table, LRT_StringObject *key);
     // Adds all elements of one Table to another.
     void LRT_TableAddAll(LRT_Table *to, LRT_Table *from);
 

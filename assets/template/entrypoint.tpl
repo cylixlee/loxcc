@@ -8,10 +8,15 @@
 #include "runtime/object.h"
 #include "runtime/gc.h"
 #include "runtime/table.h"
+#include <stdio.h>
 
 void LRT_Entrypoint()
 {
+    LRT_Value value =
     {{- range .Main }}
     {{ . }}
-    {{- end }} 
+    {{- end }}
+
+    LRT_Print(value);
+    printf("\n");
 }

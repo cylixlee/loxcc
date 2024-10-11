@@ -30,7 +30,6 @@ func main() {
 		}
 	}
 
-	// AST codegen
 	data, err = os.ReadFile(os.Args[1])
 	if err != nil {
 		log.Fatalln(err.Error())
@@ -40,9 +39,7 @@ func main() {
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-
 	code := codegen.Generate(program)
 
-	// internal.Compile(config, os.Args[1], code)
 	internal.Build(config, os.Args[1], code)
 }

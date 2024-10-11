@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"log"
 	"loxcc/internal"
+	"loxcc/internal/analyzer"
 	"loxcc/internal/backend"
-	"loxcc/internal/frontend/parser"
-	"loxcc/internal/frontend/scanner"
 	"os"
 
 	"gopkg.in/yaml.v3"
@@ -37,12 +36,7 @@ func main() {
 		log.Fatalln(err.Error())
 	}
 
-	tokens, err := scanner.Scan(string(data))
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
-
-	program, err := parser.Parse(tokens)
+	program, err := analyzer.Analyze(string(data))
 	if err != nil {
 		log.Fatalln(err.Error())
 	}

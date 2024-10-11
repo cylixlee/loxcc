@@ -9,6 +9,10 @@ import (
 	stl "github.com/chen3feng/stl4go"
 )
 
+// Deprecated: use `codegen` package instead.
+//
+// This package contains too many hard-coded contents, which lack flexibility
+// and is difficult to extend.
 func Generate(program ast.Program) string {
 	var generator codeGenerator
 	for _, v := range program {

@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"loxcc/internal/frontend/scanner"
+	"loxcc/internal/analyzer/scanner"
 
 	stl "github.com/chen3feng/stl4go"
 )

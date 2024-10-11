@@ -2,7 +2,7 @@ package parser
 
 import (
 	"errors"
-	"loxcc/internal/frontend/scanner"
+	"loxcc/internal/analyzer/scanner"
 )
 
 var (

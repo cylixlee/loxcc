@@ -1,8 +1,8 @@
 package parser
 
 import (
+	"loxcc/internal/analyzer/scanner"
 	"loxcc/internal/ast"
-	"loxcc/internal/frontend/scanner"
 
 	stl "github.com/chen3feng/stl4go"
 )

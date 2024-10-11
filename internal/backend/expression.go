@@ -1,8 +1,8 @@
 package backend
 
 import (
+	"loxcc/internal/analyzer/scanner"
 	"loxcc/internal/ast"
-	"loxcc/internal/frontend/scanner"
 )
 
 var (

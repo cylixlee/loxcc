@@ -2,7 +2,6 @@ package assets
 
 import (
 	"embed"
-	"io/fs"
 	"path/filepath"
 	"strings"
 	"text/template"
@@ -21,36 +20,22 @@ var (
 	fsys embed.FS
 
 	// Parsed templates according to embedded template files.
-	Templates *template.Template
+	Templates = template.New("")
 )
 
 // parse the templates recursively when package is imported
 func init() {
-	Templates = template.New("").Funcs(map[string]any{
+	var err error
+
+	Templates.Funcs(map[string]any{
 		"minus": func(a, b int) int {
 			return a - b
 		},
 	})
-
-	fs.WalkDir(fsys, ".", func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if d.IsDir() { // skip directories
-			return nil
-		}
-		// parse templates
-		name := removeExt(filepath.Base(path))
-		content, err := fsys.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		if _, err := Templates.New(name).Parse(string(content)); err != nil {
-			return err
-		}
-		return nil
-	})
+	_, err = Templates.ParseFS(fsys, "template/*.tpl")
+	if err != nil {
+		panic(err)
+	}
 }
 
 // Shorthand for calling template.ExecuteTemplate.

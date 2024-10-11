@@ -5,8 +5,7 @@
 {{- define "nil"     -}} NIL                                                   {{- end -}}
 {{- define "number"  -}} NUMBER({{ . }})                                       {{- end -}}
 {{- define "string"  -}} OBJECT(LRT_NewString({{ . }}, {{ minus (len .) 2 }})) {{- end -}}
-
-{{- define "identifier" -}} {{ template "mangle" . }} {{- end -}}
+{{- define "ident"   -}} {{ template "mangle" . }}                             {{- end -}}
 
 {{- /* Assignment expression */ -}}
 {{- define "assign" -}}

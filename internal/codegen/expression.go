@@ -35,14 +35,11 @@ var (
 	}
 )
 
-func (c *codeGenerator) VisitNilLiteral(n ast.NilLiteral)         { c.push("nil", nil) }
-func (c *codeGenerator) VisitBooleanLiteral(b ast.BooleanLiteral) { c.push("boolean", b) }
-func (c *codeGenerator) VisitNumberLiteral(n ast.NumberLiteral)   { c.push("number", n) }
-func (c *codeGenerator) VisitStringLiteral(s ast.StringLiteral)   { c.push("string", s) }
-
-func (c *codeGenerator) VisitIdentifierLiteral(i ast.IdentifierLiteral) {
-	c.push("identifier", i)
-}
+func (c *codeGenerator) VisitNilLiteral(n ast.NilLiteral)               { c.push("nil", nil) }
+func (c *codeGenerator) VisitBooleanLiteral(b ast.BooleanLiteral)       { c.push("boolean", b) }
+func (c *codeGenerator) VisitNumberLiteral(n ast.NumberLiteral)         { c.push("number", n) }
+func (c *codeGenerator) VisitStringLiteral(s ast.StringLiteral)         { c.push("string", s) }
+func (c *codeGenerator) VisitIdentifierLiteral(i ast.IdentifierLiteral) { c.push("ident", i) }
 
 func (c *codeGenerator) VisitThisLiteral(t ast.ThisLiteral)   { panic("unimplemented") }
 func (c *codeGenerator) VisitSuperLiteral(s ast.SuperLiteral) { panic("unimplemented") }

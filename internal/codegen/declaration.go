@@ -13,12 +13,23 @@ func (c *codeGenerator) VisitVarDeclaration(v ast.VarDeclaration) {
 	}
 	initializer := c.pop()
 
-	c.VarDecl.PushBack(map[string]string{
-		"name":        v.Name.Lexeme,
-		"initializer": initializer,
-	})
+	if c.cascade == 0 { // global var
+		c.GlobalVar.PushBack(map[string]string{
+			"name":        v.Name.Lexeme,
+			"initializer": initializer,
+		})
+	} else { // local var
+		c.push("localvar", map[string]string{
+			"name":        v.Name.Lexeme,
+			"initializer": initializer,
+		})
+		// let block statement to pop the statement out
+	}
 }
 
 func (c *codeGenerator) VisitStatementDeclaration(s ast.StatementDeclaration) {
 	s.Stmt.Accept(c)
+	if c.cascade == 0 {
+		c.Main.PushBack(c.pop())
+	}
 }

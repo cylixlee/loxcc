@@ -1,0 +1,9 @@
+var hello = "hello";
+{
+    var hello = "world";
+    print hello;
+    {
+        print "twice block!";
+    }
+}
+print hello;

@@ -14,16 +14,16 @@
 //
 // Due to the limit of constant expressions, we can't place Lox expressions here to 
 // initialize global variables; they'll be initialized in the entrypoint later.
-{{- range .VarDecl }}
+{{- range .GlobalVar }}
 LRT_Value {{ template "mangle" .name }};
 {{- end }}
 
 void LRT_Entrypoint()
 {
     // Global var definition (initialization)
-    {{- range .VarDecl }}
+    {{- range .GlobalVar }}
     {{ template "mangle" .name }} = {{ .initializer }};
-    {{- end}}
+    {{- end }}
 
     // Main logic
     {{- range .Main }}

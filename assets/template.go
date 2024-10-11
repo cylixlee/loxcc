@@ -26,7 +26,11 @@ var (
 
 // parse the templates recursively when package is imported
 func init() {
-	Templates = template.New("")
+	Templates = template.New("").Funcs(map[string]any{
+		"minus": func(a, b int) int {
+			return a - b
+		},
+	})
 
 	fs.WalkDir(fsys, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {

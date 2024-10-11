@@ -1,3 +1,3 @@
 {{- /* Go Template */ -}}
 
-OBJECT(LRT_NewString("{{ . }}", {{ len . }}))
+OBJECT(LRT_NewString({{ . }}, {{ minus (len .) 2 }}))

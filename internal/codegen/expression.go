@@ -57,9 +57,9 @@ func (c *codeGenerator) VisitBinaryExpression(b ast.BinaryExpression) {
 
 	right, left := c.pop(), c.pop()
 	c.push("binary", map[string]string{
-		"left":     left,
-		"right":    right,
-		"operator": operatorFunc,
+		"left":         left,
+		"right":        right,
+		"operatorFunc": operatorFunc,
 	})
 }
 

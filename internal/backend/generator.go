@@ -42,7 +42,6 @@ func (c *codeGenerator) write(v ...string) {
 	}
 }
 
-//lint:ignore U1000 currently not used
 func (c *codeGenerator) writeln(v ...string) {
 	c.write(v...)
 	c.write("\n")

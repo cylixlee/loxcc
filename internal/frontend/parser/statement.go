@@ -200,7 +200,6 @@ func (p *parser) parseWhileStatement() (ast.Statement, error) {
 		return nil, err
 	}
 
-	//nolint:staticcheck
 	condition, err := p.ParseExpression()
 	if err != nil {
 		return nil, err

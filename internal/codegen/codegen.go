@@ -17,23 +17,25 @@ func Generate(program ast.Program) string {
 
 type codeGenerator struct {
 	Main stl.Vector[string]
+
 	// visitor pattern does not support return values, so we have to store it in a stack.
-	returnStack *stl.DList[string]
+	// moreover, some multi-step operations may need a stack for help.
+	operationStack *stl.DList[string]
 }
 
 func newCodeGenerator() *codeGenerator {
 	return &codeGenerator{
-		Main:        stl.MakeVector[string](),
-		returnStack: stl.NewDList[string](),
+		Main:           stl.MakeVector[string](),
+		operationStack: stl.NewDList[string](),
 	}
 }
 
 func (c *codeGenerator) push(template string, data any) {
-	c.returnStack.PushBack(assets.ApplyTemplate(template, data))
+	c.operationStack.PushBack(assets.ApplyTemplate(template, data))
 }
 
 func (c *codeGenerator) pop() string {
-	value, exists := c.returnStack.PopBack()
+	value, exists := c.operationStack.PopBack()
 	if !exists {
 		panic("stack underflow")
 	}

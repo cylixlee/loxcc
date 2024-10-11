@@ -102,6 +102,7 @@ void LRT_Print(LRT_Value value)
     default:
         LRT_Panic("unreachable code (LOXCRT::Print)");
     }
+    printf("\n");
     // clang-format on
 }
 

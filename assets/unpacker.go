@@ -1,6 +1,7 @@
 package assets
 
 import (
+	"embed"
 	"io/fs"
 	"iter"
 	"log"
@@ -11,14 +12,30 @@ import (
 	stl "github.com/chen3feng/stl4go"
 )
 
-// The extensions that distinguish source files from others.
-//
-// For RuntimeUnpacker, it provides a way to iterate over those source files, in order to
-// simplify the logic of system CC invocation.
-//
-// The extensions are case-insensitive because they're all ToLower'ed in
-// RuntimeUnpacker.Sources().
-var sourceExts = stl.MakeBuiltinSetOf(".c")
+var (
+	// The Lox C Runtime.
+	//
+	// To provide the dynamic features and extra language components (e.g. GC), some
+	// runtime preparation is needed. Since we're transpiling Lox to C, the runtime part
+	// called LOXCRT is implemented in C.
+	//
+	// Before compilation, the LOXCRT files are copied to the output directory, and
+	// compiled together with the template-generated C code into an executable.
+	//
+	// The whole directory containing all the runtime implementation is embedded.
+	//
+	//go:embed runtime
+	rt embed.FS
+
+	// The extensions that distinguish source files from others.
+	//
+	// For RuntimeUnpacker, it provides a way to iterate over those source files, in order to
+	// simplify the logic of system CC invocation.
+	//
+	// The extensions are case-insensitive because they're all ToLower'ed in
+	// RuntimeUnpacker.Sources().
+	sourceExts = stl.MakeBuiltinSetOf(".c")
+)
 
 // The universal manager of LOXCRT files.
 //

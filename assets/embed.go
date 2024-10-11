@@ -1,7 +1,7 @@
 package assets
 
 import (
-	"embed"
+	_ "embed"
 	"text/template"
 )
 
@@ -15,20 +15,6 @@ var (
 	//
 	//go:embed main.tpl
 	tpl string
-
-	// The Lox C Runtime.
-	//
-	// To provide the dynamic features and extra language components (e.g. GC), some
-	// runtime preparation is needed. Since we're transpiling Lox to C, the runtime part
-	// called LOXCRT is implemented in C.
-	//
-	// Before compilation, the LOXCRT files are copied to the output directory, and
-	// compiled together with the template-generated C code into an executable.
-	//
-	// The whole directory containing all the runtime implementation is embedded.
-	//
-	//go:embed runtime
-	rt embed.FS
 
 	// The text template of generated C code.
 	//

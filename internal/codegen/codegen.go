@@ -16,7 +16,8 @@ func Generate(program ast.Program) string {
 }
 
 type codeGenerator struct {
-	Main stl.Vector[string]
+	VarDecl stl.Vector[map[string]string]
+	Main    stl.Vector[string]
 
 	// visitor pattern does not support return values, so we have to store it in a stack.
 	// moreover, some multi-step operations may need a stack for help.
@@ -25,6 +26,7 @@ type codeGenerator struct {
 
 func newCodeGenerator() *codeGenerator {
 	return &codeGenerator{
+		VarDecl:        stl.MakeVector[map[string]string](),
 		Main:           stl.MakeVector[string](),
 		operationStack: stl.NewDList[string](),
 	}

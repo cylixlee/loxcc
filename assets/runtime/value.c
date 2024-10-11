@@ -55,29 +55,7 @@ LRT_Value LRT_Equal(LRT_Value left, LRT_Value right)
     case LVAL_Boolean: return BOOLEAN(AS_BOOLEAN(left) == AS_BOOLEAN(right));
     case LVAL_Nil:     return BOOLEAN(true);
     case LVAL_Number:  return BOOLEAN(AS_NUMBER(left) == AS_NUMBER(right));
-    case LVAL_Object:
-        if (TYPEOF(left) != TYPEOF(right))
-        {
-            // values are not implicitly converted during comparison
-            return BOOLEAN(false);
-        }
-        switch (TYPEOF(left))
-        {
-        case LOBJ_String:
-            LRT_StringObject *leftString  = AS_STRING(left);
-            LRT_StringObject *rightString = AS_STRING(right);
-            return BOOLEAN(
-                leftString->length == rightString->length &&
-                memcmp(
-                    leftString->chars, 
-                    rightString->chars, 
-                    leftString->length
-                ) == 0
-            );
-            break;
-        default:
-            LRT_Panic("unreachable code (LOXCRT::Equal), branch LVAL_Object");
-        }
+    case LVAL_Object:  return BOOLEAN(AS_OBJECT(left) == AS_OBJECT(right));
     default:
         LRT_Panic("unreachable code (LOXCRT::Equal)");
     }

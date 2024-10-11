@@ -1,5 +1,6 @@
 #include "table.h"
-#include "gc.h" // for memory allocation
+#include <string.h> // for string manipulation
+#include "gc.h"     // for memory allocation
 
 /**
  * Algorithm for calculating new size of extended containers.
@@ -29,21 +30,17 @@ static LRT_TableEntry *LRT_FindEntry(LRT_TableEntry *entries, size_t capacity, L
 // Extend the table to reserve space for new elements.
 static void LRT_AdjustCapacity(LRT_Table *table, size_t newCapacity);
 
-LRT_Table LRT_NewTable()
+void LRT_InitializeTable(LRT_Table *table)
 {
-    return (LRT_Table){
-        .length = 0,
-        .capacity = 0,
-        .entries = NULL,
-    };
-}
-
-void LRT_DropTable(LRT_Table *table)
-{
-    FREE(table->entries, LRT_TableEntry, table->capacity);
     table->length = 0;
     table->capacity = 0;
     table->entries = NULL;
+}
+
+void LRT_FinalizeTable(LRT_Table *table)
+{
+    FREE(table->entries, LRT_TableEntry, table->capacity);
+    LRT_InitializeTable(table); // zero-initialize
 }
 
 bool LRT_TableGet(LRT_Table *table, LRT_StringObject *key, LRT_Value *value)
@@ -98,6 +95,41 @@ bool LRT_TableDelete(LRT_Table *table, LRT_StringObject *key)
     entry->key = NULL;
     entry->value = BOOLEAN(true);
     return true;
+}
+
+LRT_StringObject *LRT_TableContainsKey(LRT_Table *table, const char *chars, size_t length, uint32_t hash)
+{
+    if (table->length == 0)
+    {
+        return NULL;
+    }
+
+    size_t index = hash % table->capacity;
+    for (;;)
+    {
+        LRT_TableEntry *entry = &table->entries[index];
+        if (entry->key == NULL)
+        {
+            // we don't immediately return NULL because this may be a tombstone.
+            if (IS_NIL(entry->value))
+            {
+                // if it's indeed an empty slot, returns NULL because we haven't found the
+                // key.
+                return NULL;
+            }
+        }
+        else if (entry->key->length == length && entry->key->hash == hash)
+        {
+            // otherwise, we compare the length and hash first, because number comparison
+            // is much faster than strcmp.
+            if (strcmp(entry->key->chars, chars) == 0)
+            {
+                // and if the strings are equal too, we've now found one and return it.
+                return entry->key;
+            }
+        }
+        index = (index + 1) % table->capacity;
+    }
 }
 
 void LRT_TableAddAll(LRT_Table *to, LRT_Table *from)

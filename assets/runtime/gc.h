@@ -28,6 +28,19 @@ extern "C"
     void LRT_FinalizeGC();
 
     /**
+     * String interning.
+     *
+     * Lox interns every string, so that strings that are literally equal is referential
+     * equal. This saves a lot of time comparing strings, which is very important for the
+     * Table.
+     *
+     * By the way, this feature is implemented by using a Table.
+     */
+    void LRT_GCInternString(LRT_StringObject *string);
+    // Find whether GC has interned this string.
+    LRT_StringObject *LRT_GCFindInterned(const char *chars, size_t length, uint32_t hash);
+
+    /**
      * Allocate an Object, with internal status being set.
      *
      * LOXCRT has to insert some internal status (type information, GC mark, etc.) to make

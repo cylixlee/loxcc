@@ -12,22 +12,28 @@
  */
 struct
 {
-    LRT_Object *objects; // linked list of allocated objects
     LRT_Table strings;   // string pool, all strings are interned in Lox
+    LRT_Object *objects; // linked list of allocated objects
     size_t allocated;
     size_t freed;
 } GC;
 
 void LRT_InitializeGC()
 {
+    LRT_InitializeTable(&GC.strings);
     GC.objects = NULL;
     GC.allocated = 0;
     GC.freed = 0;
-    GC.strings = LRT_NewTable();
 }
 
 void LRT_FinalizeGC()
 {
+    LRT_FinalizeTable(&GC.strings);
+
+    // clear heap
+    //
+    // this must be the final step, since other fields of GC may heap-allocate some
+    // objects.
     LRT_Object *object = GC.objects;
     while (object != NULL)
     {
@@ -36,18 +42,26 @@ void LRT_FinalizeGC()
         object = next;
     }
 
-    LRT_DropTable(&GC.strings);
-
 #ifdef GC_TRACE
     printf("=== GC Total Allocated: %llu\n", GC.allocated);
     printf("=== GC Total Freed: %llu\n", GC.freed);
 #endif
 
-    if (GC.allocated != GC.freed)
+    if (GC.allocated != GC.freed) // simple leak check
     {
         fprintf(stderr, "internal error: GC unclear");
         exit(EXIT_FAILURE);
     }
+}
+
+void LRT_GCInternString(LRT_StringObject *string)
+{
+    LRT_TableSet(&GC.strings, string, NIL);
+}
+
+LRT_StringObject *LRT_GCFindInterned(const char *chars, size_t length, uint32_t hash)
+{
+    return LRT_TableContainsKey(&GC.strings, chars, length, hash);
 }
 
 LRT_Object *LRT_AllocateObject(size_t size, LRT_ObjectType type)

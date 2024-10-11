@@ -39,7 +39,7 @@ extern "C"
 // Whether to print information when GC runs.
 #define GC_TRACE
 
-#undef GC_TRACE // disable GC_TRACE
+    // #undef GC_TRACE // disable GC_TRACE
 
 #ifdef __cplusplus
 }

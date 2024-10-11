@@ -44,8 +44,8 @@ extern "C"
         LRT_TableEntry *entries;
     } LRT_Table;
 
-    LRT_Table LRT_NewTable();             // Create a new Table.
-    void LRT_DropTable(LRT_Table *table); // Drop the Table.
+    void LRT_InitializeTable(LRT_Table *table);
+    void LRT_FinalizeTable(LRT_Table *table);
 
     /**
      * Lookup the corresponding value of a specific key.
@@ -73,6 +73,13 @@ extern "C"
      * If the corresponding entry exists, a `true` is returned.
      */
     bool LRT_TableDelete(LRT_Table *table, LRT_StringObject *key);
+    /**
+     * Check if the Table contains the specified string as a key.
+     *
+     * If so, the pointer to the object is returned; otherwise NULL. This is vital for
+     * string interning.
+     */
+    LRT_StringObject *LRT_TableContainsKey(LRT_Table *table, const char *chars, size_t length, uint32_t hash);
     // Adds all elements of one Table to another.
     void LRT_TableAddAll(LRT_Table *to, LRT_Table *from);
 

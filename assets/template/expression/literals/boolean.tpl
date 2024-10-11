@@ -1,0 +1,3 @@
+{{- /* Go Template */ -}}
+
+BOOLEAN({{ . }})

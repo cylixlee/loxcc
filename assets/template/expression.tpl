@@ -1,17 +1,17 @@
 {{- /* Go Template */ -}}
 
 {{- /* Lox literal expressions */ -}}
-{{ define "boolean" -}} BOOLEAN({{ . }})                                      {{- end }}
-{{ define "nil"     -}} NIL                                                   {{- end }}
-{{ define "number"  -}} NUMBER({{ . }})                                       {{- end }}
-{{ define "string"  -}} OBJECT(LRT_NewString({{ . }}, {{ minus (len .) 2 }})) {{- end }}
+{{- define "boolean" -}} BOOLEAN({{ . }})                                      {{- end -}}
+{{- define "nil"     -}} NIL                                                   {{- end -}}
+{{- define "number"  -}} NUMBER({{ . }})                                       {{- end -}}
+{{- define "string"  -}} OBJECT(LRT_NewString({{ . }}, {{ minus (len .) 2 }})) {{- end -}}
 
 {{- /* Binary expression */ -}}
-{{ define "binary" -}}
+{{- define "binary" -}}
     ({{ .operatorFunc }}({{ .left }}, {{ .right }}))
-{{- end}}
+{{- end -}}
 
 {{- /* Unary expression */ -}}
-{{ define "unary" -}}
+{{- define "unary" -}}
     ({{ .operatorFunc }}({{ .operand }}))
-{{- end}}
+{{- end -}}

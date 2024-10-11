@@ -29,16 +29,16 @@ R["Lox C Runtime (LOXCRT)"]
 C[System C Compiler]
 E[Executable Binaries]
 
-L --frontend--> A
-A --backend--> O
+L --analyzer--> A
+A --codegen--> O
 O --> C
 R --> C
 C --> E
 ```
 
 As the graph describes, the pipeline of compiling a Lox program using LoxCC is as below:
-1. **Scan** the source of Lox Program, and creates corresponding AST (Abstract Syntax Tree).
-2. **Transform** the AST into C codes.
+1. **Parse** the source of Lox Program, and creates corresponding AST (Abstract Syntax Tree).
+2. **Generate** the AST into C codes.
 3. **Copy** the handwritten LOXCRT to the output directory.
 4. (optional) **Call** the system C compiler.
 
@@ -46,9 +46,9 @@ As the graph describes, the pipeline of compiling a Lox program using LoxCC is a
 
 The build configs are written in [YAML](https://yaml.org/), a very expressive serialization language, and placed at the root of LoxCC.
 
- | Key                      | Description & Behavior                                                                                                                                                                                 | Example   |
- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------- |
- | `outputFolderName`       | Where to put generated C code and LOXCRT. Must be a directory.                                                                                                                                         | `"build"` |
- | `ccPath`                 | The system C compiler path. <br>LoxCC will try to compile generated C code into executables if this is specified.                                                                                      | `"gcc"`   |
- | `deleteSourceAfterBuild` | Whether to delete them when the generated C files are successfully compiled into executables. <br> Note the sources are not deleted if the compilation is not successful or `ccPath` is not specified. | `true`    |
+ | Key                      | Description & Behavior                                                                                                                                                                                 | Typical Value |
+ | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------- |
+ | `outputFolderName`       | Where to put generated C code and LOXCRT. Must be a directory.                                                                                                                                         | `"build"`     |
+ | `ccPath`                 | The system C compiler path. <br>LoxCC will try to compile generated C code into executables if this is specified.                                                                                      | `"gcc"`       |
+ | `deleteSourceAfterBuild` | Whether to delete them when the generated C files are successfully compiled into executables. <br> Note the sources are not deleted if the compilation is not successful or `ccPath` is not specified. | `true`        |
 

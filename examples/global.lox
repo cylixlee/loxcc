@@ -1,2 +1,6 @@
-var hello = "world";
-var world;
+var breakfast = "beignets";
+var beverage = "cafe au lait";
+breakfast = "beignets with " + beverage;
+
+print breakfast;
+print "beignets with cafe au lait" == breakfast;

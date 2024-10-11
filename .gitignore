@@ -1,5 +1,3 @@
-go.sum
-
 # Temporary executable for debugging
 __debug_bin*
 

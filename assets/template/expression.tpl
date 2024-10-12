@@ -7,15 +7,18 @@
 {{- define "string"  -}} OBJECT(LRT_NewString({{ . }}, {{ minus (len .) 2 }})) {{- end -}}
 {{- define "ident"   -}} {{ template "mangle" . }}                             {{- end -}}
 
+
 {{- /* Assignment expression */ -}}
 {{- define "assign" -}}
     (({{ .left }}) = ({{ .right }}))
 {{- end -}}
 
+
 {{- /* Binary expression */ -}}
 {{- define "binary" -}}
     ({{ .operatorFunc }}({{ .left }}, {{ .right }}))
 {{- end -}}
+
 
 {{- /* Unary expression */ -}}
 {{- define "unary" -}}

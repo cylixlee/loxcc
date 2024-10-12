@@ -35,7 +35,16 @@ func (c *codeGenerator) VisitPrintStatement(p ast.PrintStatement) {
 }
 
 func (c *codeGenerator) VisitReturnStatement(r ast.ReturnStatement) { panic("unimplemented") }
-func (c *codeGenerator) VisitWhileStatement(w ast.WhileStatement)   { panic("unimplemented") }
+
+func (c *codeGenerator) VisitWhileStatement(w ast.WhileStatement) {
+	w.Body.Accept(c)
+	w.Condition.Accept(c)
+	condition, body := c.pop(), c.pop()
+	c.push("while", map[string]string{
+		"condition": condition,
+		"body":      body,
+	})
+}
 
 func (c *codeGenerator) VisitBlockStatement(b ast.BlockStatement) {
 	c.cascade++

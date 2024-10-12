@@ -3,3 +3,9 @@ if (nil or 1 + 2 == 3) {
 } else {
     print "???";
 }
+
+var i = 0;
+while (i < 3) {
+    print "hello, world!";
+    i = i + 1;
+}

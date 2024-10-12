@@ -79,6 +79,9 @@ func (p *parser) parseForStatement() (ast.Statement, error) {
 				Kind:            ast.InitExpr,
 				ExprInitializer: expr,
 			}
+			if _, err := p.mustConsume(scanner.TokSemicolon); err != nil {
+				return nil, err
+			}
 		}
 	}
 

@@ -7,6 +7,7 @@
 
 
 {{- define "for" -}}
+// generated for-loop start
 {
     {{ with .initializer }} {{ . }} {{ end }};
     while (!LRT_FalsinessOf({{- with .condition }} {{ . }} {{ else }} BOOLEAN(true) {{ end -}})) {
@@ -14,6 +15,7 @@
         {{ with .incrementer }} {{ . }} {{ end }};
     }
 }
+// generated for-loop end
 {{- end -}}
 
 

@@ -22,6 +22,8 @@ var (
 		scanner.TokBangEqual:    "LRT_NotEqual",
 		scanner.TokLessEqual:    "LRT_LessEqual",
 		scanner.TokGreaterEqual: "LRT_GreaterEqual",
+		scanner.TokAnd:          "LRT_And",
+		scanner.TokOr:           "LRT_Or",
 	}
 
 	// Corresponding LOXCRT function calls to unary operators.

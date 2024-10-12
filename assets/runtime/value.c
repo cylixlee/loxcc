@@ -70,6 +70,24 @@ LRT_Value LRT_GreaterEqual(LRT_Value left, LRT_Value right) { return LRT_Not(LRT
 
 // clang-format on
 
+LRT_Value LRT_And(LRT_Value left, LRT_Value right)
+{
+    if (LRT_FalsinessOf(left))
+    {
+        return left;
+    }
+    return right;
+}
+
+LRT_Value LRT_Or(LRT_Value left, LRT_Value right)
+{
+    if (!LRT_FalsinessOf(left))
+    {
+        return left;
+    }
+    return right;
+}
+
 LRT_Value LRT_Negate(LRT_Value value)
 {
     if (!IS_NUMBER(value))

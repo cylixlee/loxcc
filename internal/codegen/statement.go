@@ -12,7 +12,22 @@ func (c *codeGenerator) VisitExpressionStatement(e ast.ExpressionStatement) {
 }
 
 func (c *codeGenerator) VisitForStatement(f ast.ForStatement) { panic("unimplemented") }
-func (c *codeGenerator) VisitIfStatement(i ast.IfStatement)   { panic("unimplemented") }
+
+func (c *codeGenerator) VisitIfStatement(i ast.IfStatement) {
+	i.Then.Accept(c)
+	i.Condition.Accept(c)
+
+	condition, then := c.pop(), c.pop()
+	data := map[string]string{
+		"condition": condition,
+		"then":      then,
+	}
+	if i.Else != nil {
+		i.Else.Accept(c)
+		data["else"] = c.pop()
+	}
+	c.push("if", data)
+}
 
 func (c *codeGenerator) VisitPrintStatement(p ast.PrintStatement) {
 	p.Value.Accept(c)

@@ -4,6 +4,13 @@
 {{ . }};
 {{- end -}}
 
+{{- define "if" -}}
+if (!LRT_FalsinessOf({{ .condition }})) {{ .then }}
+{{ with .else -}}
+else {{ . }}
+{{ end }}
+{{- end -}}
+
 {{- define "print" -}}
     LRT_Print({{ . }});
 {{- end -}}
@@ -15,3 +22,4 @@
     {{- end }}
 }
 {{- end -}}
+

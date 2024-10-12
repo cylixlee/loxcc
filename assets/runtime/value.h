@@ -93,6 +93,9 @@ extern "C"
     LRT_Value LRT_LessEqual(LRT_Value, LRT_Value);
     LRT_Value LRT_GreaterEqual(LRT_Value, LRT_Value);
 
+    LRT_Value LRT_And(LRT_Value, LRT_Value);
+    LRT_Value LRT_Or(LRT_Value, LRT_Value);
+
     // === Unary operations ===
 
     LRT_Value LRT_Negate(LRT_Value);

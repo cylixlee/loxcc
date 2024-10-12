@@ -9,3 +9,7 @@ while (i < 3) {
     print "hello, world!";
     i = i + 1;
 }
+
+for (; i<5; i=i+1) {
+    print i;
+}

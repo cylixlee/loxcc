@@ -6,6 +6,17 @@
 {{- end -}}
 
 
+{{- define "for" -}}
+{
+    {{ with .initializer }} {{ . }} {{ end }};
+    while (!LRT_FalsinessOf({{- with .condition }} {{ . }} {{ else }} BOOLEAN(true) {{ end -}})) {
+        {{ .body }}
+        {{ with .incrementer }} {{ . }} {{ end }};
+    }
+}
+{{- end -}}
+
+
 {{- define "if" -}}
 if (!LRT_FalsinessOf({{ .condition }})) {{ .then }}
 {{ with .else -}}

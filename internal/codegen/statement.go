@@ -11,7 +11,36 @@ func (c *codeGenerator) VisitExpressionStatement(e ast.ExpressionStatement) {
 	c.push("exprstmt", c.pop())
 }
 
-func (c *codeGenerator) VisitForStatement(f ast.ForStatement) { panic("unimplemented") }
+func (c *codeGenerator) VisitForStatement(f ast.ForStatement) {
+	c.cascade++
+	f.Body.Accept(c)
+	data := map[string]string{
+		"body": c.pop(),
+	}
+	if f.Initializer != nil {
+		switch f.Initializer.Kind {
+		case ast.VarDecl:
+			f.Initializer.VarInitializer.Accept(c)
+		case ast.InitExpr:
+			f.Initializer.ExprInitializer.Accept(c)
+		default:
+			panic("unreachable code in parsing for-loop initializer.")
+		}
+		data["initializer"] = c.pop()
+	}
+
+	if f.Condition != nil {
+		f.Condition.Accept(c)
+		data["condition"] = c.pop()
+	}
+
+	if f.Incrementer != nil {
+		f.Incrementer.Accept(c)
+		data["incrementer"] = c.pop()
+	}
+	c.push("for", data)
+	c.cascade--
+}
 
 func (c *codeGenerator) VisitIfStatement(i ast.IfStatement) {
 	i.Then.Accept(c)

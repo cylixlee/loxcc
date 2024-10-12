@@ -37,14 +37,21 @@ func (sc systemCC) Compile(sources stl.Vector[string]) {
 }
 
 type BuildConfig struct {
-	OutputFolderName       string `yaml:"outputFolderName"`
-	CcPath                 string `yaml:"ccPath"`
-	DeleteSourceAfterBuild bool   `yaml:"deleteSourceAfterBuild"`
+	CC struct {
+		Path          string
+		Args          []string
+		CleanUpSource bool `yaml:"cleanUpSource"`
+	}
+	Formatter struct {
+		Path string
+		Args []string
+	}
+	OutputFolder string `yaml:"outputFolder"`
 }
 
 func Build(config BuildConfig, filename, source string) {
-	dir := filepath.Join(filepath.Dir(filename), config.OutputFolderName)
-	deletion := config.CcPath != "" && config.DeleteSourceAfterBuild
+	dir := filepath.Join(filepath.Dir(filename), config.OutputFolder)
+	deletion := config.CC.Path != "" && config.CC.CleanUpSource
 
 	// unpack LOXCRT
 	unpacker := assets.NewRuntimeUnpacker(dir)
@@ -63,14 +70,25 @@ func Build(config BuildConfig, filename, source string) {
 	}
 
 	// (optional) call system CC
-	if config.CcPath != "" {
+	if config.CC.Path != "" {
 		outputName := filepath.Join(dir, removeExt(filepath.Base(correspond)))
-		cc := newSystemCC(config.CcPath, outputName)
-		sources := stl.MakeVectorOf(correspond)
+		cc := newSystemCC(config.CC.Path, outputName)
+		args := stl.MakeVectorOf(correspond)
 		for source := range unpacker.Sources() {
-			sources.PushBack(source)
+			args.PushBack(source)
 		}
-		cc.Compile(sources)
+		args.Append(config.CC.Args...)
+		cc.Compile(args)
+	}
+
+	// (optional) call formatter
+	if !deletion && config.Formatter.Path != "" {
+		args := stl.MakeVectorOf(correspond)
+		args.Append(config.Formatter.Args...)
+		command := exec.Command(config.Formatter.Path, args...)
+		if err := command.Run(); err != nil {
+			log.Fatalln(err.Error())
+		}
 	}
 }
 

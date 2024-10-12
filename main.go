@@ -18,11 +18,7 @@ func main() {
 	}
 
 	// define default build-config, and load from file if exists.
-	config := internal.BuildConfig{
-		OutputFolderName:       "build",
-		CcPath:                 "",
-		DeleteSourceAfterBuild: false,
-	}
+	config := internal.BuildConfig{OutputFolder: "build"}
 	data, err := os.ReadFile("build-config.yaml")
 	if err == nil { // will not report an error if ReadFile fails.
 		if err := yaml.Unmarshal(data, &config); err != nil {

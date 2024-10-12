@@ -4,13 +4,21 @@
 # implementations. There's more than one C file, so a [outputFolderName] should be
 # specified. LoxCC will output all related C files into this folder.
 #
-# If an [ccPath] is configured, LoxCC tries to compile the generated C source into
-# binary. This operation may fail if C compiler is not found.
+# If an [cc] is configured, LoxCC tries to compile the generated C source into
+# binary.
 #
 # If compilation from C to binary is successful, C sources will be deleted if
 # [deleteSourceAfterBuild] is set to true. If C compilation fails, C sources will be
 # preserved whether [deteteSourceAfterBuild] is set or not.
+#
+# For readability, a formatter can be specified. As for clang-format, we need to pass "-i"
+# to let it format in-place.
 
-outputFolderName: build
-ccPath: gcc
-deleteSourceAfterBuild: false
+outputFolder: build
+cc:
+  path: gcc
+  args: []
+  cleanUpSource: false
+formatter:
+  path: clang-format
+  args: ["-i"]

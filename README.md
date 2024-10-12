@@ -46,9 +46,4 @@ As the graph describes, the pipeline of compiling a Lox program using LoxCC is a
 
 The build configs are written in [YAML](https://yaml.org/), a very expressive serialization language, and placed at the root of LoxCC.
 
- | Key                      | Description & Behavior                                                                                                                                                                                 | Typical Value |
- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------- |
- | `outputFolderName`       | Where to put generated C code and LOXCRT. Must be a directory.                                                                                                                                         | `"build"`     |
- | `ccPath`                 | The system C compiler path. <br>LoxCC will try to compile generated C code into executables if this is specified.                                                                                      | `"gcc"`       |
- | `deleteSourceAfterBuild` | Whether to delete them when the generated C files are successfully compiled into executables. <br> Note the sources are not deleted if the compilation is not successful or `ccPath` is not specified. | `true`        |
-
+For detailed behavior, see [build-config.yaml](./build-config.yaml)

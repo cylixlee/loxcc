@@ -1,9 +1,27 @@
 package codegen
 
-import "loxcc/internal/ast"
+import (
+	"loxcc/internal/ast"
 
-func (c *codeGenerator) VisitClassDeclaration(k ast.ClassDeclaration)       { panic("unimplemented") }
-func (c *codeGenerator) VisitFunctionDeclaration(f ast.FunctionDeclaration) { panic("unimplemented") }
+	stl "github.com/chen3feng/stl4go"
+)
+
+func (c *codeGenerator) VisitClassDeclaration(k ast.ClassDeclaration) { panic("unimplemented") }
+
+func (c *codeGenerator) VisitFunctionDeclaration(f ast.FunctionDeclaration) {
+
+	f.Body.Accept(c)
+	params := stl.MakeVector[string]()
+	for _, param := range f.Parameters {
+		params.PushBack(param.Lexeme)
+	}
+	data := map[string]any{
+		"name":   f.Name.Lexeme,
+		"params": params,
+		"body":   c.pop(),
+	}
+	c.Func.PushBack(data)
+}
 
 func (c *codeGenerator) VisitVarDeclaration(v ast.VarDeclaration) {
 	if v.Initializer != nil {

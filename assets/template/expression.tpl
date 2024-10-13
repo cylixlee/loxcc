@@ -1,12 +1,15 @@
 {{- /* Go Template */ -}}
 
 {{- /* Lox literal expressions */ -}}
-{{- define "boolean" -}} BOOLEAN({{ . }})                                      {{- end -}}
-{{- define "nil"     -}} NIL                                                   {{- end -}}
-{{- define "number"  -}} NUMBER({{ . }})                                       {{- end -}}
-{{- define "string"  -}} OBJECT(LRT_NewString({{ . }}, {{ minus (len .) 2 }})) {{- end -}}
-{{- define "ident"   -}} {{ template "mangle" . }}                             {{- end -}}
-
+{{- define "boolean" -}} BOOLEAN({{ . }})                      {{- end -}}
+{{- define "nil"     -}} NIL                                   {{- end -}}
+{{- define "number"  -}} NUMBER({{ . }})                       {{- end -}}
+{{- define "strobj"  -}} LRT_NewString("{{ . }}", {{ len . }}) {{- end -}}
+{{- define "string"  -}} OBJECT({{ template "strobj" . }})     {{- end -}}
+{{- define "ident"   -}} {{ template "mangle" . }}             {{- end -}}
+{{- define "fn"      -}}
+    OBJECT(LRT_NewFunction({{ template "strobj" .name }}, {{ template "funmangle" .name }}))
+{{- end -}}
 
 {{- /* Assignment expression */ -}}
 {{- define "assign" -}}

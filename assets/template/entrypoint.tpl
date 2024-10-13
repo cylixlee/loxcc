@@ -9,6 +9,15 @@
 #include "runtime/object.h"
 #include "runtime/gc.h"
 #include "runtime/table.h"
+#include <stdarg.h> // for vararg function
+
+// Function declarations
+//
+// Lox supported first-class functions, which makes LoxCC use a LRT_Value to wrap a
+// function pointer, and provide it as a (global) variable.
+{{- range .Func }}
+{{ template "funsig" . }}
+{{- end }}
 
 // Global var declarations
 //
@@ -17,6 +26,10 @@
 {{- range .GlobalVar }}
 LRT_Value {{ template "mangle" .name }};
 {{- end }}
+// Corresponding var of functions.
+{{- range .Func }}
+LRT_Value {{ template "mangle" .name }};
+{{- end}}
 
 void LRT_Entrypoint()
 {
@@ -24,11 +37,23 @@ void LRT_Entrypoint()
     {{- range .GlobalVar }}
     {{ template "mangle" .name }} = {{ .initializer }};
     {{- end }}
+    // Function var definition
+    {{- range .Func }}
+    {{ template "mangle" .name }} = {{ template "fn" . }};
+    {{- end }}
 
     // Main logic
     {{- range .Main }}
     {{ . }}
     {{- end }}
 }
+
+// Function definitions
+//
+// Functions are implemented here. We don't implement them where they declared in order to
+// avoid circular references.
+{{- range .Func }}
+{{ template "fundef" . }}
+{{- end -}}
 
 {{- end -}}

@@ -18,6 +18,7 @@ func Generate(program ast.Program) string {
 type codeGenerator struct {
 	GlobalVar stl.Vector[map[string]string]
 	Main      stl.Vector[string]
+	Func      stl.Vector[map[string]any]
 
 	// visitor pattern does not support return values, so we have to store it in a stack.
 	// moreover, some multi-step operations may need a stack for help.

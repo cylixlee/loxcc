@@ -34,6 +34,13 @@ LRT_StringObject *LRT_TakeString(char *chars, size_t length)
     return LRT_AllocateString(chars, length, hash);
 }
 
+LRT_FunctionObject *LRT_NewFunction(LRT_StringObject *name, LRT_Fn fn)
+{
+    LRT_FunctionObject *object = ALLOCATE_OBJ(LRT_FunctionObject, LOBJ_Function);
+    object->name = name;
+    object->fn = fn;
+}
+
 void LRT_FinalizeObject(LRT_Object *object)
 {
 #ifdef GC_TRACE
@@ -45,6 +52,9 @@ void LRT_FinalizeObject(LRT_Object *object)
         LRT_StringObject *strobj = (LRT_StringObject *)object;
         FREE(strobj->chars, char, strobj->length + 1);
         FREE(strobj, LRT_StringObject, 1);
+        break;
+    case LOBJ_Function:
+        FREE(object, LRT_FunctionObject, 1); // function objects contain no owned allocations.
         break;
     default:
         LRT_Panic("unreachable code (LOXCRT::FinalizeObject)");

@@ -19,6 +19,7 @@ extern "C"
     typedef enum
     {
         LOBJ_String,
+        LOBJ_Function,
     } LRT_ObjectType;
 
     /**
@@ -42,7 +43,7 @@ extern "C"
      */
     typedef struct
     {
-        LRT_Object meta;
+        LRT_Object intrinsic;
         size_t length;
         char *chars;
         uint32_t hash;
@@ -58,6 +59,35 @@ extern "C"
      * the length should be correct.
      */
     LRT_StringObject *LRT_TakeString(char *chars, size_t length);
+
+    /**
+     * Function pointer compatible with Lox calls.
+     *
+     * However, we could not use a signature that has definite parameters to represent all
+     * Lox functions, which have different arities. The C varargs is adopted so, with the
+     * first argument as the arity.
+     */
+    typedef LRT_Value (*LRT_Fn)(size_t arity, ...);
+
+    /**
+     * The Lox function.
+     *
+     * Lox, like other dynamic-typed languages, adopts function as first-class values.
+     * That is, we need to represent a function as a LRT_Value.
+     *
+     * The underlying code is referenced by a function pointer in C. For recording the
+     * callstack (for panic tracing), we'll need a String object to store the function
+     * name.
+     */
+    typedef struct
+    {
+        LRT_Object intrinsic;
+        LRT_StringObject *name;
+        LRT_Fn fn;
+    } LRT_FunctionObject;
+
+    // Create a function object from its name and a function pointer.
+    LRT_FunctionObject *LRT_NewFunction(LRT_StringObject *name, LRT_Fn fn);
 
     /**
      * The unified function to finalize an object.

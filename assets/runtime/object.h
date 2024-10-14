@@ -33,7 +33,7 @@ extern "C"
     typedef struct LRT_Object
     {
         LRT_ObjectType type;     // type information
-        struct LRT_Object *next; // a field for **intrusive** linked list
+        struct LRT_Object *next; // a field for intrusive linked list
     } LRT_Object;
 
     /**

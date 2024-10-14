@@ -7,8 +7,8 @@
 {{- define "strobj"  -}} LRT_NewString("{{ . }}", {{ len . }}) {{- end -}}
 {{- define "string"  -}} OBJECT({{ template "strobj" . }})     {{- end -}}
 {{- define "ident"   -}} {{ template "mangle" . }}             {{- end -}}
-{{- define "fn"      -}}
-    OBJECT(LRT_NewFunction({{ template "strobj" .name }}, {{ template "funmangle" .name }}))
+{{- define "fn"   -}}
+    OBJECT(LRT_NewFunction({{ template "strobj" . }}, {{ template "funmangle" . }}))
 {{- end -}}
 
 {{- /* Assignment expression */ -}}

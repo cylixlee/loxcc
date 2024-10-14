@@ -9,6 +9,7 @@
 #include "runtime/object.h"
 #include "runtime/gc.h"
 #include "runtime/table.h"
+#include "runtime/native.h"
 
 // Function declarations
 //
@@ -22,23 +23,31 @@
 //
 // Due to the limit of constant expressions, we can't place Lox expressions here to 
 // initialize global variables; they'll be initialized in the entrypoint later.
-{{- range .GlobalVar }}
-LRT_Value {{ template "mangle" .name }};
-{{- end }}
-// Corresponding var of functions.
+//
+// Native functions.
+LRT_Value {{ template "mangle" "clock" }};
+// User-defined functions.
 {{- range .Func }}
 LRT_Value {{ template "mangle" .name }};
 {{- end}}
+// Global variables.
+{{- range .GlobalVar }}
+LRT_Value {{ template "mangle" .name }};
+{{- end }}
 
 void LRT_Entrypoint()
 {
+    // Native functions.
+    {{ template "mangle" "clock" }} = {{ template "fn" "clock" }};
+    // Function var definition
+    {{- range .Func }}
+        {{- with .name }}
+            {{ template "mangle" . }} = {{ template "fn" . }};
+        {{- end }}
+    {{- end }}
     // Global var definition (initialization)
     {{- range .GlobalVar }}
     {{ template "mangle" .name }} = {{ .initializer }};
-    {{- end }}
-    // Function var definition
-    {{- range .Func }}
-    {{ template "mangle" .name }} = {{ template "fn" . }};
     {{- end }}
 
     // Main logic

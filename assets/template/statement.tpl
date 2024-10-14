@@ -32,6 +32,11 @@ else {{ . }}
 {{- end -}}
 
 
+{{- define "return" -}}
+    return {{ . }};
+{{- end -}}
+
+
 {{- define "while" -}}
 while (!LRT_FalsinessOf({{ .condition }})) {{ .body }}
 {{- end -}}

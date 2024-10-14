@@ -27,3 +27,7 @@
 {{- define "unary" -}}
     ({{ .operatorFunc }}({{ .operand }}))
 {{- end -}}
+
+{{- define "call" -}}
+    LRT_Call({{ .callee }}, {{ len .args }} {{ range .args}}, {{ . }}{{ end }})
+{{- end -}}

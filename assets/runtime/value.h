@@ -101,6 +101,9 @@ extern "C"
     LRT_Value LRT_Negate(LRT_Value);
     LRT_Value LRT_Not(LRT_Value);
 
+    // === Invocation operations ===
+    LRT_Value LRT_Call(LRT_Value callee, size_t arity, ...);
+
     // === Builtin functionalities ===
 
     /**

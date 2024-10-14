@@ -44,17 +44,24 @@ LRT_FunctionObject *LRT_NewFunction(LRT_StringObject *name, LRT_Fn fn)
 void LRT_FinalizeObject(LRT_Object *object)
 {
 #ifdef GC_TRACE
-    printf("=== Finalize object %p\n", object);
+    printf("=== Finalize object %p ", object);
 #endif
     switch (object->type)
     {
     case LOBJ_String:
         LRT_StringObject *strobj = (LRT_StringObject *)object;
+#ifdef GC_TRACE
+        printf("as <Str> \"%s\"\n", strobj->chars);
+#endif
         FREE(strobj->chars, char, strobj->length + 1);
         FREE(strobj, LRT_StringObject, 1);
         break;
     case LOBJ_Function:
-        FREE(object, LRT_FunctionObject, 1); // function objects contain no owned allocations.
+        LRT_FunctionObject *funobj = (LRT_FunctionObject *)object;
+#ifdef GC_TRACE
+        printf("as <Fun> %s(...)\n", funobj->name->chars);
+#endif
+        FREE(funobj, LRT_FunctionObject, 1); // function objects contain no owned allocations.
         break;
     default:
         LRT_Panic("unreachable code (LOXCRT::FinalizeObject)");

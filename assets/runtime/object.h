@@ -2,7 +2,8 @@
 #define LOXCRT_OBJECT_H
 
 #include "prelude.h"
-#include "value.h" // for Object-Value type check.
+#include "value.h"  // for Object-Value type check.
+#include <stdarg.h> // for vararg functions.
 
 #ifdef __cplusplus
 extern "C"
@@ -67,7 +68,7 @@ extern "C"
      * Lox functions, which have different arities. The C varargs is adopted so, with the
      * first argument as the arity.
      */
-    typedef LRT_Value (*LRT_Fn)(size_t arity, ...);
+    typedef LRT_Value (*LRT_Fn)(size_t arity, va_list args);
 
     /**
      * The Lox function.
@@ -117,11 +118,17 @@ extern "C"
 
 // Convenient macro for checking whether a Value is a String.
 #define IS_STRING(_Value) isinstance(_Value, LOBJ_String)
+// Convenient macro for checking whether a Value is a Function.
+#define IS_FUNCTION(_Value) isinstance(_Value, LOBJ_Function)
 
-// Convenient macro for convert a Value to a String.
+// Convenient macro for converting a Value to a String.
 #define AS_STRING(_Value) ((LRT_StringObject *)AS_OBJECT(_Value))
-// Convenient macro for convert a Value to a C-style string.
+// Convenient macro for converting a Value to a C-style string.
 #define AS_CSTR(_Value) (AS_STRING(_Value)->chars)
+// Convenient macro for converting a Value to a Function.
+#define AS_FUNCTION(_Value) ((LRT_FunctionObject *)AS_OBJECT(_Value))
+// Convenient macro for converting a Value to a C-callable function.
+#define AS_FN(_Value) (AS_FUNCTION(_Value)->fn)
 
 #ifdef __cplusplus
 }

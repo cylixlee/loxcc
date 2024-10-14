@@ -1,6 +1,7 @@
 #include "value.h"
 #include <stdio.h>  // for output
 #include <string.h> // for string manipulation
+#include <stdarg.h> // for vararg functions
 #include "object.h" // for object definition
 #include "gc.h"     // for allocation
 
@@ -99,6 +100,24 @@ LRT_Value LRT_Negate(LRT_Value value)
 }
 
 LRT_Value LRT_Not(LRT_Value value) { return BOOLEAN(LRT_FalsinessOf(value)); }
+
+LRT_Value LRT_Call(LRT_Value callee, size_t arity, ...)
+{
+    // type check and prepare fn.
+    if (!IS_FUNCTION(callee))
+    {
+        LRT_Panic("attempt to invoke a non-callable object");
+    }
+    LRT_Fn fn = AS_FN(callee);
+
+    // accessing vararg list, and call fn.
+    va_list varlist;
+    va_start(varlist, arity);
+    LRT_Value returnValue = fn(arity, varlist); // record return value. fn WILL return.
+    va_end(varlist);
+
+    return returnValue;
+}
 
 bool LRT_FalsinessOf(LRT_Value value)
 {

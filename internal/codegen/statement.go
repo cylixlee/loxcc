@@ -63,7 +63,10 @@ func (c *codeGenerator) VisitPrintStatement(p ast.PrintStatement) {
 	c.push("print", c.pop())
 }
 
-func (c *codeGenerator) VisitReturnStatement(r ast.ReturnStatement) { panic("unimplemented") }
+func (c *codeGenerator) VisitReturnStatement(r ast.ReturnStatement) {
+	r.Value.Accept(c)
+	c.push("return", c.pop())
+}
 
 func (c *codeGenerator) VisitWhileStatement(w ast.WhileStatement) {
 	w.Body.Accept(c)

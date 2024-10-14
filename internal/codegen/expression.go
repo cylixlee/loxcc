@@ -3,6 +3,8 @@ package codegen
 import (
 	"loxcc/internal/analyzer/scanner"
 	"loxcc/internal/ast"
+
+	stl "github.com/chen3feng/stl4go"
 )
 
 var (
@@ -89,4 +91,18 @@ func (c *codeGenerator) VisitUnaryExpression(u ast.UnaryExpression) {
 	})
 }
 
-func (c *codeGenerator) VisitInvocationExpression(i ast.InvocationExpression) { panic("unimplemented") }
+func (c *codeGenerator) VisitInvocationExpression(i ast.InvocationExpression) {
+	i.Callee.Accept(c)
+	data := map[string]any{
+		"callee": c.pop(),
+	}
+
+	args := stl.MakeVector[string]()
+	for _, arg := range i.Arguments {
+		arg.Accept(c)
+		args.PushBack(c.pop())
+	}
+	data["args"] = args
+
+	c.push("call", data)
+}

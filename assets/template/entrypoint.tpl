@@ -9,7 +9,6 @@
 #include "runtime/object.h"
 #include "runtime/gc.h"
 #include "runtime/table.h"
-#include <stdarg.h> // for vararg function
 
 // Function declarations
 //

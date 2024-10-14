@@ -17,7 +17,7 @@
 outputFolder: build
 cc:
   path: gcc
-  args: ["-O0", "-DGC_TRACE"]
+  args: ["-DGC_TRACE"]
   cleanUpSource: false
 formatter:
   path: clang-format

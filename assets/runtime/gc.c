@@ -1,6 +1,6 @@
 #include "gc.h"
 #include <stdlib.h> // for memory allocation & exiting program
-#include <string.h> // for `memset`
+#include <string.h> // for memset()
 #include <stdio.h>  // for (error) output
 #include "table.h"  // for String interning
 
@@ -54,6 +54,17 @@ void LRT_FinalizeGC()
     }
 }
 
+void LRT_GarbageCollect()
+{
+#ifdef GC_TRACE
+    printf("=== GC begin\n");
+#endif
+
+#ifdef GC_TRACE
+    printf("=== GC end\n");
+#endif
+}
+
 void LRT_GCInternString(LRT_StringObject *string)
 {
     LRT_TableSet(&GC.strings, string, NIL);
@@ -75,6 +86,14 @@ LRT_Object *LRT_AllocateObject(size_t size, LRT_ObjectType type)
 
 void *LRT_Reallocate(void *pointer, size_t oldSize, size_t newSize)
 {
+#ifdef GC_STRESS
+    if (newSize > oldSize) // if there'll be some allocation
+    {
+        // immediately call GC under stress mode
+        LRT_GarbageCollect();
+    }
+#endif
+
     // no allocation if both size are identical.
     if (oldSize == newSize)
     {

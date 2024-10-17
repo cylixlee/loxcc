@@ -28,6 +28,13 @@ extern "C"
     void LRT_FinalizeGC();
 
     /**
+     * Invoke GC.
+     *
+     * Manually or automatically called to run the garbage collection procedure.
+     */
+    void LRT_GarbageCollect();
+
+    /**
      * String interning.
      *
      * Lox interns every string, so that strings that are literally equal is referential

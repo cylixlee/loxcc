@@ -34,6 +34,17 @@ extern "C"
      */
     void LRT_Panic(const char *message);
 
+    // Compilation Flags
+    //
+    // These flags are of great use when debugging the runtime implementation. However, as
+    // embedded template, they should not be defined here; pass them to the system CC by
+    // build-config.
+
+#define GC_TRACE  // Output information when GC
+#define GC_STRESS // Run GC as more as it can to detect bugs
+#undef GC_STRESS
+#undef GC_TRACE
+
 #ifdef __cplusplus
 }
 #endif

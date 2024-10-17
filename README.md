@@ -3,6 +3,7 @@ Lox to C compiler, with corresponding runtime implementation in C.
 
 - [LoxCC](#loxcc)
   - [Motivation](#motivation)
+  - [Implemented Features](#implemented-features)
   - [Architecture](#architecture)
   - [Build Configs](#build-configs)
 
@@ -13,6 +14,27 @@ Lox to C compiler, with corresponding runtime implementation in C.
 2. An **AOT** language (with or without additional runtime), instead of JIT/Interpreted language, is what I've been seeking for.
 
 Thus, the LoxCC project is spawned. Similar to *older version of* [Go](https://go.dev/), there will be a C implementation of Lox C Runtime, which is compiled together with Lox programs.
+
+## Implemented Features
+Lox is a dynamically typed, GC managed language. However, making it AOT-compatible is not so easy than running it in VM. Currently, we support these features:
+
+- [x] Expressions
+- [x] Value types (numbers, booleans, nil)
+- [x] Strings
+- [x] String interning
+- [x] Global variables
+- [x] Local variables
+- [x] Control flow
+- [x] Functions and invocations
+- [ ] ~~Closure~~
+- [ ] Garbage Collection
+- [ ] Classes and instances
+- [ ] Methods and initializers
+- [ ] Superclasses
+
+All of which are the corresponding concepts from the [book](https://craftinginterpreters.com).
+
+> NOTE: In this version, closures will **NOT** be supported because of implementation difficulties. It may be added in future major or minor versions.
 
 ## Architecture
 

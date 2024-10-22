@@ -26,7 +26,7 @@ Lox is a dynamically typed, GC managed language. However, making it AOT-compatib
 - [x] Local variables
 - [x] Control flow
 - [x] Functions and invocations
-- [ ] ~~Closure~~
+- [ ] ~~Closure~~ (Not supported)
 - [ ] Garbage Collection
 - [ ] Classes and instances
 - [ ] Methods and initializers

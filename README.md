@@ -10,7 +10,7 @@ Lox to C compiler, with corresponding runtime implementation in C.
 ## Motivation
 [Lox](https://craftinginterpreters.com/the-lox-language.html), introduced in the book [Crafting Interpreters](https://craftinginterpreters.com), is a language that a lot of PL enthusiasts implement compilers and interpreters for. However:
 
-1. My implementation [rlox](https://github.com/cylixlee/rlox) is not as **fast** as [clox](https://github.com/munificent/craftinginterpreters/tree/master/c)
+1. My (now deleted) implementation is not as **fast** as [clox](https://github.com/munificent/craftinginterpreters/tree/master/c)
 2. An **AOT** language (with or without additional runtime), instead of JIT/Interpreted language, is what I've been seeking for.
 
 Thus, the LoxCC project is spawned. Similar to *older version of* [Go](https://go.dev/), there will be a C implementation of Lox C Runtime, which is compiled together with Lox programs.
